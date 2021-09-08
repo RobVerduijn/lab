@@ -44,7 +44,7 @@ guest_def:
         # if image is set to an iso file the method will be forced to keep
         # method: create
       sdb:
-        image: CentOS-8.4.2105-x86_64-dvd1.iso
+        image: "{{ iso[os_image]['name'] }}"
         bootable: true
     network:
       eth0:

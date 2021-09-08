@@ -44,7 +44,7 @@ guest_def:
         # if image is set to an iso file the method will be forced to keep
         # method: create
       sdb:
-        image: Fedora-Server-netinst-x86_64-34-1.2.iso
+        image: "{{ iso[os_image]['name'] }}"
         bootable: true
     network:
       eth0:

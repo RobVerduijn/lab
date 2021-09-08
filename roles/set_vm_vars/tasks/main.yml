@@ -2,6 +2,9 @@
 - name: include host {{ ansible_distribution }}{{ ansible_distribution_major_version }} vars
   include_vars: host_{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml
 
+- name: include iso
+  include_vars: group_vars/iso.yml
+
 - name: get libvirt pool names
   community.libvirt.virt_pool:
     command: facts
@@ -31,6 +34,7 @@
 - name: ensure vms is a hostvar
   set_fact:
     vms: "{{ vms }}"
+  when: vms is defined
 
 - name: create guests definition
   include_tasks:

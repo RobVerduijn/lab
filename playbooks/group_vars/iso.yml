@@ -1,0 +1,19 @@
+---
+# you might want to pick a closer/faster mirror for the download url
+iso:
+  CentOS8stream:
+    name: CentOS-Stream-8-x86_64-latest-dvd1.iso
+    url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8-stream/isos/x86_64/CentOS-Stream-8-x86_64-latest-dvd1.iso
+    pool: default
+  CentOS8:
+    name: CentOS-8.4.2105-x86_64-dvd1.iso
+    url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
+    pool: default
+  Fedora34:
+    name: Fedora-Server-netinst-x86_64-34-1.2.iso
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-netinst-x86_64-34-1.2.iso
+    pool: default
+  Rocky8:
+    name: Rocky-8.4-x86_64-dvd1.iso
+    url: https://download.rockylinux.org/pub/rocky/8/isos/aarch64/Rocky-8.4-aarch64-dvd1.iso
+    pool: default

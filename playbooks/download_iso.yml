@@ -1,0 +1,31 @@
+---
+- name: download isos
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+
+  tasks:
+    - name: get the iso list
+      include_vars: group_vars/iso.yml
+
+    - name: get libvirt pool names
+      community.libvirt.virt_pool:
+        command: facts
+
+    - name: create image list
+      set_fact:
+        volumes: "{{ volumes | default([]) + item['value']['volumes'] }}"
+      loop: "{{ ansible_libvirt_pools|dict2items  }}"
+
+    - name: create download list
+      set_fact:
+        downloads: "{{ downloads | default([]) + [item['key']] }}"
+      loop: "{{ iso | dict2items }}"
+      when: item['value']['name'] not in volumes
+
+    - name: download {{ downloads | join(' ') }}, this will take a while
+      get_url:
+        url: "{{ iso[item]['url'] }}"
+        dest: "{{ ansible_libvirt_pools[iso[item]['pool']]['path'] }}/{{ iso[item]['name'] }}"
+        mode: 0644
+      loop: "{{ downloads }}"
