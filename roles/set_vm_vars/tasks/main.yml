@@ -1,0 +1,48 @@
+---
+- name: include host {{ ansible_distribution }}{{ ansible_distribution_major_version }} vars
+  include_vars: host_{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml
+
+- name: get libvirt pool names
+  community.libvirt.virt_pool:
+    command: facts
+
+- name: refresh libvirt pool facts
+  community.libvirt.virt_pool:
+    command: refresh
+    name: "{{ pool['key'] }}"
+  loop: "{{ ansible_libvirt_pools | dict2items }}"
+  loop_control:
+    loop_var: pool
+
+- name: find current vms
+  community.libvirt.virt:
+    command: list_vms
+  register: current_vms
+  changed_when: false
+
+- name: define guests
+  include_tasks:
+    file: define_guests.yml
+  loop: "{{ vms }}"
+  loop_control:
+    loop_var: guest
+  when: vms is defined
+
+- name: ensure vms is a hostvar
+  set_fact:
+    vms: "{{ vms }}"
+
+- name: create guests definition
+  include_tasks:
+    file: define_guests.yml
+  vars:
+    guest: "{{ os_image }}"
+  when: os_image is defined
+
+- name: show {{ guests }}
+  debug:
+    var: guests
+
+- name: show current vms
+  debug:
+    var: current_vms['list_vms']

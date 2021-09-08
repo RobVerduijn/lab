@@ -1,0 +1,13 @@
+---
+- name: set {{ dev }} pool and method
+  set_fact:
+    guests: >-
+      {{
+        guests | combine(
+          { guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'pool': pool_name['key'], 'method': 'keep' }}}}}}, recursive=True
+        )
+      }}
+  loop: "{{ ansible_libvirt_pools | dict2items }}"
+  loop_control:
+    loop_var: pool_name
+  when: guests[guest]['guest_def']['devices']['storage'][dev]['image'] in pool_name['value']['volumes']

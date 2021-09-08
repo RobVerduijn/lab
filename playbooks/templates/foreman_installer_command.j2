@@ -1,0 +1,11 @@
+{# this template will generate the foreman installer command #}
+env LANG=en_US.UTF-8 LC_ALL=en_US.UTF8 \
+{{ foreman_installer_command }} \
+--scenario {{ foreman_installer_scenario }} \
+{{ (foreman_installer_verbose|bool) | ternary("-v", "") }} \
+{{ (foreman_installer_no_colors|bool) | ternary("--no-colors", "") }} \
+--detailed-exitcodes \
+--foreman-initial-organization '{{ orgs[0]["name"] }}' \
+--foreman-initial-location {{ locations[0]["name"] }} \
+--foreman-initial-admin-username {{ katello_admin_user }} \
+--foreman-initial-admin-password {{ katello_admin_password }} \

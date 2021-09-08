@@ -1,0 +1,17 @@
+---
+- name: create ks file
+  template:
+    src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}-ks.cfg.j2"
+    dest: "{{ tmp_dir }}/ks.cfg"
+    mode: 0644
+
+- name: set path and image
+  set_fact:
+    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool']]['path'] }}"
+    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['image'] }}"
+
+- name: generate iso
+  command: >-
+    genisoimage -volid OEMDRV -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/ks.cfg
+  args:
+    creates: "{{ path }}/{{ image }}"

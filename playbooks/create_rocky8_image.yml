@@ -1,0 +1,21 @@
+---
+- name: create rocky8 backing image
+  hosts: buildhost
+  gather_facts: true
+  vars:
+    os_image: Rocky8
+    ansible_user: root
+    root_password: rockylinux  # encrypt this with ansible-vault
+
+  tasks:
+    - name: clean up previous attempts
+      include_role:
+        name: my_ansible.lab.delete_guest
+
+    - name: create backing image
+      include_role:
+        name: my_ansible.lab.create_backing_image
+
+    - name: delete {{ guest }}
+      include_role:
+        name: my_ansible.lab.delete_guest

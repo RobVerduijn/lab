@@ -1,0 +1,45 @@
+---
+- name: check vm status
+  community.libvirt.virt:
+    command: status
+    name: "{{ guest['key'] }}"
+  register: vm_status
+  when: guest['key'] in current_vms.list_vms
+
+- name: force stop old vm
+  community.libvirt.virt:
+    command: destroy
+    name: "{{ guest['key'] }}"
+  when:
+    - guest['key'] in current_vms.list_vms
+    - vm_status['status'] != 'shutdown'
+
+- name: undefine old vm
+  community.libvirt.virt:
+    command: undefine
+    name: "{{ guest['key'] }}"
+  when: guest['key'] in current_vms.list_vms
+
+- name: create files list
+  set_fact:
+    files: >-
+      {{
+        files | default([]) +
+        [
+          ansible_libvirt_pools
+          [
+            guests[guest['key']]['guest_def']['devices']['storage']
+              [
+                storage_dev['key']
+              ]
+              ['pool']
+          ]
+          ['path']
+          + '/' +
+          storage_dev['value']['image']
+        ]
+      }}
+  loop: "{{ guests[guest['key']]['guest_def']['devices']['storage']| dict2items }}"
+  loop_control:
+    loop_var: storage_dev
+  when: storage_dev['value']['image'] | regex_search('.*(qcow2|_cfg\.iso)$')

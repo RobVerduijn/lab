@@ -1,0 +1,31 @@
+---
+- name: show device
+  debug:
+    var: guest_def['devices']['storage'][device['key']]
+- name: set readable vars
+  set_fact:
+    image: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['image'] }}"
+    image_pool: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['pool'] }}"
+    image_size: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['size'] }}"
+    backing_image: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['backing_image'] }}"
+    backing_image_pool: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['backing_image_pool'] }}"
+
+- name: set more readable vars
+  set_fact:
+    image_pool_path: "{{ ansible_libvirt_pools[image_pool]['path'] }}"
+    backing_image_pool_path: "{{ ansible_libvirt_pools[backing_image_pool]['path'] }}"
+
+- name: clone {{ backing_image }} to {{ image }}
+  command: qemu-img dd -f qcow2 -O qcow2 bs=1M if={{ backing_image_pool_path }}/{{ backing_image }} of={{ image_pool_path }}/{{ image }}
+  tags:
+    - skip_ansible_lint
+
+- name: resize {{ image }} to {{ image_size }}
+  command: qemu-img resize {{ image_pool_path }}/{{ image }} {{ image_size }}
+  tags:
+    - skip_ansible_lint
+
+- name: refresh libvirt pool facts
+  community.libvirt.virt_pool:
+    command: refresh
+    name: "{{ image_pool }}"

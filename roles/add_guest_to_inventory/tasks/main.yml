@@ -1,0 +1,13 @@
+---
+- name: determine {{ guest['key'] }} ip
+  command: virsh domifaddr {{ guest['key'] }} --source agent --interface eth0
+  register: virsh_results
+  until: "'ipv4' in virsh_results['stdout']"
+  retries: 100
+  changed_when: false
+
+- name: add guest to inventory
+  add_host:
+    hostname: "{{ guest['key'] }}"
+    groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default([]) }}"
+    ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$','\\1'))[0]  }}"

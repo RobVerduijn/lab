@@ -1,0 +1,44 @@
+---
+- name: load {{ guest }} vars
+  include_vars:
+    file: host_vars/{{ guest }}.yml
+    name: vm
+  when: os_image is not defined
+
+- name: load {{ guest }} vars
+  include_vars:
+    file: vars/{{ guest }}.yml
+    name: vm
+  when: os_image is defined
+
+- name: combine vm vars with guests
+  set_fact:
+    guests: "{{ guests | default({}) | combine({ guest: vm }, recursive=True) }}"
+
+- name: set tmp_dir
+  set_fact:
+    tmp_dir: /tmp/{{ lookup('password', '/dev/null chars=ascii_letters length=15') }}
+
+- name: set cfg_image
+  set_fact:
+    cfg_image: "{{ guest | lower | replace('.','_') }}_cfg.iso"
+
+- name: add config iso
+  set_fact:
+    guests: |
+      {{ guests | combine(
+        { guest: { 'guest_def': { 'devices': { 'storage': { 'sdz': { 'pool': 'default', 'image': cfg_image, 'method': 'keep' }}}}}}, recursive=True) }}
+
+- name: define storage device attributes
+  include_tasks: set_storage_device_attributes.yml
+  loop: "{{ guests[guest]['guest_def']['devices']['storage'] | dict2items }}"
+  loop_control:
+    loop_var: device
+
+- name: set network device source_network
+  set_fact:
+    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'network': { device['key']: { 'source_network': 'default' }}}}}}, recursive=True) }}"
+  loop: "{{ guests[guest]['guest_def']['devices']['network'] | dict2items }}"
+  loop_control:
+    loop_var: device
+  when: guests[guest]['guest_def']['devices']['network'][device['key']]['source_network'] is not defined

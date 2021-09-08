@@ -1,0 +1,36 @@
+---
+- name: delete previous attempts
+  include_role:
+    name: my_ansible.lab.delete_guest
+
+- name: create cfg iso
+  include_role:
+    name: my_ansible.lab.create_cfg_iso
+  vars:
+    method: create_backing_image
+  loop: "{{ guests | dict2items }}"
+  loop_control:
+    loop_var: guest
+
+- name: create qcow2 image
+  include_role:
+    name: my_ansible.lab.create_storage_qcow
+  loop: "{{ guests | dict2items }}"
+  loop_control:
+    loop_var: guest
+
+- name: define {{ os_image }}
+  include_role:
+    name: my_ansible.lab.define_guest
+  loop: "{{ guests | dict2items }}"
+  loop_control:
+    loop_var: guest
+
+- name: ensure {{ os_image }} is started
+  community.libvirt.virt:
+    name: "{{ os_image }}"
+    state: running
+
+- name: sysprep image
+  include_role:
+    name: my_ansible.lab.sysprep_image

@@ -1,0 +1,16 @@
+---
+# ipaserver_reverse_zones: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns'))[2:-1] }}"
+ipaserver_auto_reverse: true
+# ipaserver_allow_zone_overlap: true
+ipaserver_auto_forwarders: true
+# ipaserver_setup_adtrust: true
+ipaserver_setup_dns: true
+# ipaserver_setup_kra: false
+ipaserver_domain: "{{ ipa_domain }}"
+ipaserver_realm: '{{ ipa_realm }}'
+ipaclient_mkhomedir: true
+ipaclient_no_ntp: true
+ipaautomount_location: default
+ipaadmin_password: rockylinux
+# the dm password may not contain '\'
+ipadm_password: rockylinux

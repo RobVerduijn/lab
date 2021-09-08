@@ -1,0 +1,8 @@
+---
+ipaserver_domain: "{{ ipa_domain }}"
+ipaserver_realm: '{{ ipa_realm }}'
+ipaclient_mkhomedir: true
+ipaclient_no_ntp: true
+ipaautomount_location: default
+ipaadmin_password: rockylinux
+ipasssd_enable_dns_updates: true

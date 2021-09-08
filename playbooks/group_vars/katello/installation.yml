@@ -1,0 +1,118 @@
+---
+# installer role options
+# uncomment to activate them
+foreman_installer_command: foreman-installer
+foreman_installer_package: foreman-installer-katello
+foreman_installer_scenario: katello
+foreman_installer_verbose: true
+foreman_installer_no_colors: false
+foreman_installer_option_org: "{{ orgs[0]['name'] }}"
+foreman_installer_option_loc: "{{ locations[0]['name'] }}"
+foreman_installer_option_admin: admin
+foreman_installer_option_admin_password: katello42  # encrypt this in production
+
+theforeman_release: '3.0'
+katello_release: '4.2'
+
+katello_repos:
+  - https://yum.theforeman.org/releases/{{ theforeman_release }}/el{{ ansible_distribution_major_version }}/x86_64/foreman-release.rpm
+  - https://yum.theforeman.org/katello/{{ katello_release }}/katello/el{{ ansible_distribution_major_version }}/x86_64/katello-repos-latest.rpm
+  - centos-release-ansible-29
+  - https://yum.puppet.com/puppet6-release-el-{{ ansible_distribution_major_version }}.noarch.rpm
+
+dnf_modules:
+  - name: ruby
+    version: 2.7
+    profiles: ''
+
+  - name: postgresql
+    version: 12
+    profiles: ''
+
+centos_repos:
+  - name: powertools
+    repofile: CentOS-Linux-PowerTools.repo
+
+katello_packages:
+  - foreman-installer-katello
+  # - foreman-libvirt
+  # - katello
+  # - tfm-rubygem-xmlrpc
+
+katello_users:
+  - name: foreman
+    comment: Foreman
+    uid: 1014
+    gid: 1014
+    home: /usr/share/foreman
+    shell: /bin/false
+
+  - name: foreman-proxy
+    comment: Foreman Proxy daemon user
+    uid: 1015
+    gid: 1015
+    home: /usr/share/foreman-proxy
+    shell: /bin/false
+
+errata_packages:
+  - pulp-admin-client
+  - pulp-rpm-admin-extensions
+
+# - rubygem-smart_proxy_dhcp_remote_isc
+# - tfm-rubygem-foreman_discovery
+
+compute_host:
+
+katello_keytabs:
+  foremanproxy:
+    principal: '{{ "foremanproxy/" + ansible_fqdn + "@" + ipa_realm }}'
+    keytab: /etc/foreman-proxy/dns.keytab
+    user: foreman-proxy
+    group: foreman-proxy
+    notify: restart foreman-proxy
+    type: service
+  HTTP:
+    principal: '{{ "HTTP/" + ansible_fqdn + "@" + ipa_realm }}'
+    keytab: /etc/httpd/conf/http.keytab
+    user: apache
+    group: root
+    notify: restart katello
+    type: service
+  realm:
+    principal: '{{ "realm-proxy" + "@" + ipa_realm }}'
+    keytab: /etc/foreman-proxy/freeipa.keytab
+    user: foreman-proxy
+    group: foreman-proxy
+    notify: restart foreman-proxy
+    type: user
+
+
+katello_idm_dns_server: '{{ groups[ipaserver][0] }}'
+katello_dns_tsig_principal: '{{ katello_keytabs.foremanproxy.principal }}'
+katello_dns_tsig_keytab: '{{ katello_keytabs.foremanproxy.keytab }}'
+katello_dns_reverse: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns'))[2:-1] }}"
+katello_dns_domain: '{{ ipa_domain }}'
+katello_realm_principal: '{{ katello_keytabs.realm.principal }}'
+katello_realm_keytab: '{{ katello_keytabs.realm.keytab }}'
+
+katello_tftp_root: '/var/lib/tftpboot'
+katello_tftp_server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+katello_dhcp_server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+katello_dhcp_conf_dir: '{{ katello_volumes.etc_dhcp.mp }}'
+katello_dhcp_lease_dir: '{{ katello_volumes.var_lib_dhcp.mp }}'
+katello_dhcp_domain: '{{ ipa_domain }}'
+katello_dhcp_range_start: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.150"
+katello_dhcp_range_stop: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
+katello_dhcp_gateway: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['gateway'] }}"
+katello_dhcp_nameservers: "{{ network[0]['ip']['dns'] | join(' ') }}"
+katello_dhcp_subnets: >-
+  {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ hostvars[inventory_hostname]['ansible_default_ipv4']['netmask'] }}
+katello_firewall_ports:
+  - 69/udp
+  - 80/tcp
+  - 443/tcp
+  - 5000/tcp
+  - 5647/tcp
+  - 5900-5930/tcp
+  - 8000/tcp
+  - 9090/tcp

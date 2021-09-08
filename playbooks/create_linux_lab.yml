@@ -1,0 +1,62 @@
+---
+- name: create centos8.linux.lab guest
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+  vars:
+    vms:
+      - centos8.linux.lab
+      - centos8stream.linux.lab
+      - rocky8.linux.lab
+      - fedora34.linux.lab
+
+  tasks:
+    - name: include set vm vars
+      include_role:
+        name: my_ansible.lab.set_vm_vars
+
+    - name: delete {{ vms | join(' ') }}
+      include_role:
+        name: my_ansible.lab.delete_guest
+      when:
+        - delete_vm is defined
+        - delete_vm | bool
+
+    - name: create {{ vms | join(' ') }}
+      include_role:
+        name: my_ansible.lab.create_guest
+
+    - name: ensure guests are started
+      community.libvirt.virt:
+        name: "{{ guest['key'] }}"
+        state: running
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+    - name: add guests to inventory
+      include_role:
+        name: my_ansible.lab.add_guest_to_inventory
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+- name: configure guests
+  hosts: "{{ hostvars[groups['buildhost'][0]]['vms'] | default('fail') }}"
+  gather_facts: false
+  remote_user: root
+
+  tasks:
+    - name: wait for {{ inventory_hostname }} to fully start
+      wait_for_connection:
+
+    - name: gather facts
+      setup:
+
+    - name: add swap file
+      include_role:
+        name: my_ansible.lab.add_swap_file
+
+    - name: show {{ inventory_hostname }} hostvars
+      debug:
+        var: hostvars[inventory_hostname]

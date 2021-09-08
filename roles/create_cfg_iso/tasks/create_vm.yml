@@ -1,0 +1,19 @@
+---
+- name: create cloud init files
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ tmp_dir }}/{{ item }}"
+    mode: 0644
+  loop:
+    - meta-data
+    - user-data
+
+- name: set path and image
+  set_fact:
+    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool']]['path'] }}"
+    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['image'] }}"
+
+- name: generate iso
+  command: genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/user-data {{ tmp_dir }}/meta-data
+  args:
+    creates: "{{ path }}/{{ image }}"

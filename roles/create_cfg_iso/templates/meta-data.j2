@@ -1,0 +1,14 @@
+instance-id: {{ guest['key'].split('.')[0] }}
+{#local-hostname: {{ guest }}#}
+{% if guests[guest['key']]['network'][0]['ip']['address'] is defined -%}
+network-interfaces: |
+  auto {{ guests[guest['key']]['network'][0]['name'] }}  
+  iface {{ guests[guest['key']]['network'][0]['name'] }} inet static
+  address {{ guests[guest['key']]['network'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}
+  network {{ guests[guest['key']]['network'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('network') }}
+  netmask {{ guests[guest['key']]['network'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}
+  broadcast {{ guests[guest['key']]['network'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('broadcast') }}
+  gateway {{ guests[guest['key']]['network'][0]['ip']['gateway4']  }}
+  dns-nameservers {{ guests[guest['key']]['network'][0]['ip']['dns'] | join(' ') }}
+  dns-search {{ guests[guest['key']]['network'][0]['ip']['dns_search'] | join(' ') }}
+{% endif %}

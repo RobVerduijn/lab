@@ -1,0 +1,6 @@
+---
+- name: create qcow image
+  include_tasks: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['method'] }}.yml"
+  loop: "{{ guests[guest['key']]['guest_def']['devices']['storage'] | dict2items }}"
+  loop_control:
+    loop_var: device

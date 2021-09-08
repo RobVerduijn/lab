@@ -1,0 +1,19 @@
+---
+- name: create tmp dir
+  file:
+    path: "{{ tmp_dir }}"
+    state: directory
+    mode: 0755
+
+- name: include {{ method }}
+  include_tasks: "{{ method }}.yml"
+
+- name: delete tmp dir
+  file:
+    path: "{{ tmp_dir }}"
+    state: absent
+
+- name: refresh libvirt pool facts
+  community.libvirt.virt_pool:
+    command: refresh
+    name: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool'] }}"

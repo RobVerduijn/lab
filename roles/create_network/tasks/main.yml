@@ -1,0 +1,14 @@
+---
+- name: find all network xml files
+  find:
+    paths: 
+      - "{{ role_path }}/files"
+    patterns: '*.xml'
+  register: networks
+
+- name: define networks
+  include_tasks: add_network.yml
+  loop: "{{ networks['files'] | community.general.json_query('[*].path') | list }}"
+  loop_control:
+    loop_var: xml_path
+  

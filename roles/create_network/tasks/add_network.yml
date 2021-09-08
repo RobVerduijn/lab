@@ -1,0 +1,24 @@
+---
+- name: determine network name
+  xml:
+    path: "{{ xml_path }}"
+    xpath: /network/name
+    content: text
+  register: network_name
+
+- name: refresh virt-network facts
+  community.libvirt.virt_net:
+    command: facts
+
+- name: define network {{ network_name['matches'][0]['name'] }}
+  community.libvirt.virt_net:
+    command: define
+    name: "{{ network_name['matches'][0]['name'] }}"
+    xml: "{{ lookup('file', xml_path) }}"
+  when: ansible_libvirt_networks[network_name['matches'][0]['name']] is not defined
+
+- name: start network {{ network_name['matches'][0]['name'] }}
+  community.libvirt.virt_net:
+    name: "{{ network_name['matches'][0]['name'] }}"
+    autostart: true
+    state: active

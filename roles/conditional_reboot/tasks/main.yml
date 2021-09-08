@@ -1,0 +1,17 @@
+---
+- name: ensure dnf-utils is installed
+  package:
+    name: dnf-utils
+    state: present
+
+- name: check reboot needed
+  command: needs-restarting -r
+  register: needs_restarting
+  changed_when: false | bool
+  failed_when: needs_restarting['rc'] > 1
+
+- name: reboot
+  reboot:
+  when:
+    - needs_restarting['rc'] is defined
+    - needs_restarting['rc'] == 1

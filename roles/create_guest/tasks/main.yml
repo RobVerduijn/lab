@@ -1,0 +1,6 @@
+---
+- name: create guest
+  include_tasks: create_guest.yml
+  loop: "{{ guests | dict2items }}"
+  loop_control:
+    loop_var: guest

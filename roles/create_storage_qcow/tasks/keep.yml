@@ -1,0 +1,4 @@
+---
+- name: keep method
+  debug:
+    msg: "ignoring {{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['image'] }} image"

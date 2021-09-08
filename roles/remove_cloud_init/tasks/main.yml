@@ -1,0 +1,17 @@
+---
+- name: remove cloud init packages
+  package:
+    name:
+      - cloud-init
+      - cloud-utils-growfs
+    state: absent
+
+- name: clean up cloud-init
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/cloud
+    - /var/lib/cloud
+    - /var/log/cloud-init.log
+    - /var/log/cloud-init-output.log

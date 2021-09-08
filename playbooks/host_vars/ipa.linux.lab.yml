@@ -1,0 +1,72 @@
+---
+network:
+  - name: eth0
+    type: ethernet
+    interface_name: eth0
+    autoconnect: true
+    ip:
+      address:
+        - 192.168.100.2/24
+      dns:
+        - 127.0.0.1
+      dns_search:
+        - linux.lab
+      gateway4: 192.168.100.1
+
+guest_def:
+  ansible_user: root
+  root_password: rockylinux  # encrypt this with ansible-vault
+  root_pubkey: "{{ root_pubkey }}"
+  host_groups:
+    - all
+    - ipaserver
+  os_id: http://rockylinux.org/rocky/8
+  dist: Rocky
+  dist_major: 8
+  dist_family: RedHat
+  mem:
+    unit: MiB
+    size: 4192
+  vcpu: 2
+  devices:
+    storage:
+      sda:
+        # size must be set if the device is not an iso
+        # set to size if device in G of T
+        size: 60G
+        # backing_image is optional
+        # the name of the image to clone
+        # when creating a backing image this will be its name
+        backing_image: backing_Rocky8_sda.qcow2
+
+        # backing_image_pool will be determined if not set
+        # backing_image_pool:
+
+        # bootable default is false
+        # the device will be set to bootable
+        # boot order is the order of the storage dict
+        bootable: true
+
+        # if 'image' is set 'method' will be set to 'keep'
+        # so that the image is not replaced by a new empty image
+        # image:
+
+        # pool will be automatically determined if not set
+        # will be ignored is image is set
+        # pool:
+
+        # method default is create
+        # can be one of [ 'create', 'clone', 'keep' ]
+        # override the default image create method
+        # will be set to keep if image is set
+        # will be set to clone if backing_image is set
+        # set to create if you want to force a new empty image
+        # if image is set to an iso file the method will be forced to keep
+        # method: create
+    network:
+      eth0:
+        # mac is optional
+        # mac: 00:00:00
+        # source_network is optional
+        # source_network: default
+        source_network: network_01

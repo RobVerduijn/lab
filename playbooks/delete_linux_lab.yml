@@ -1,0 +1,20 @@
+---
+- name: create centos8.linux.lab guest
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+  vars:
+    vms:
+      - centos8.linux.lab
+      - centos8stream.linux.lab
+      - rocky8.linux.lab
+      - fedora34.linux.lab
+
+  tasks:
+    - name: include set vm vars
+      include_role:
+        name: my_ansible.lab.set_vm_vars
+
+    - name: delete {{ vms | join(' ') }}
+      include_role:
+        name: my_ansible.lab.delete_guest

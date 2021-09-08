@@ -1,0 +1,24 @@
+---
+- name: delete vm
+  include_tasks: delete_vm.yml
+  loop: "{{ guests | dict2items }}"
+  loop_control:
+    loop_var: guest
+
+- name: delete old files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ files }}"
+
+- name: refresh libvirt pool facts
+  community.libvirt.virt_pool:
+    command: refresh
+    name: "{{ item['key'] }}"
+  loop: "{{ ansible_libvirt_pools | dict2items }}"
+
+- name: refresh current vms
+  community.libvirt.virt:
+    command: list_vms
+  register: current_vms
+  changed_when: false

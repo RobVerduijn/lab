@@ -1,0 +1,58 @@
+---
+- name: check if there is only one buildhost
+  assert:
+    that:
+      - groups['buildhost'] | length == 1
+    fail_msg: There should only be one host in the buildhost group
+    success_msg: The buildhost is {{ inventory_hostname }}
+
+- name: check if we run ansible-core
+  assert:
+    that:
+      - ansible_version['minor'] >= 11
+    fail_msg: ansible {{ ansible_version['full'] }} is to old you need to update (or activate) your virtual env
+    success_msg: ansible {{ ansible_version['full'] }} is ok
+  when:
+    - ansible_version['major'] == 2
+
+- name: check if the guest_def variables are set
+  assert:
+    that:
+      - guest_def[item] is defined
+    fail_msg: |
+      The guest_def.{{ item }} variable is not set
+      check the {{ guest }}.yml file in the host_vars folder
+      in the host_vars folder
+    success_msg: guest_def.{{ item }} variable is set to {{ guest_def[item] }}
+  loop:
+    - os_id
+    - dist
+    - dist_major
+    - dist_family
+
+- name: check if the host varuables are defined
+  assert:
+    that:
+      - kvm_machine is defined
+    fail_msg: |
+      The kvm_machine variable is not set
+      check the host_{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml file
+      in the collection/playbooks/vars folder
+    success_msg: The kvm_machine variable is set
+
+- name: check if genisoimage command is available
+  command: genisoimage -version
+  tags:
+    - skip_ansible_lint
+
+- name: refresh virt-network facts
+  community.libvirt.virt_net:
+    command: facts
+
+- name: check if guest network exists
+  assert:
+    that:
+      - ansible_libvirt_networks[guest_def['devices']['network'][item['key']]['source_network']] is defined
+    fail_msg: network {{ item['key'] }} is not defined run the setup_ansible_controller playbook
+    success_msg: the virtual network for {{ item['key'] }} is defined
+  loop: "{{ guest_def['devices']['network'] | dict2items }}"

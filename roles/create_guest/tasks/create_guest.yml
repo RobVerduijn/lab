@@ -1,0 +1,17 @@
+---
+- block:
+    - name: create cfg iso
+      include_role:
+        name: my_ansible.lab.create_cfg_iso
+      vars:
+        method: create_vm
+
+    - name: create qcow2 image
+      include_role:
+        name: my_ansible.lab.create_storage_qcow
+
+    - name: define guest
+      include_role:
+        name: my_ansible.lab.define_guest
+
+  when: guest['key'] not in current_vms.list_vms

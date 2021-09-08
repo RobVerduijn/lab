@@ -1,0 +1,16 @@
+#cloud-config
+{# line 1 is a shebang, do not remove or alter it #}
+preserve_hostname: False
+hostname: {{ guest['key'].split('.')[0] }}
+fqdn: {{ guest['key'] }}
+
+chpasswd:
+  list: |
+    root:{{ guests[guest['key']]['guest_def']['root_password'] | default(root_password) }}
+  expire: False
+disable_root: 0
+users:
+  - name: root
+    ssh_pwauth: True
+    ssh_authorized_keys:
+      - {{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}

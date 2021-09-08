@@ -1,0 +1,13 @@
+all:
+  hosts:
+    my_host.example.com:
+      ansible_ssh_common_args: '-o IdentityFile=~/.ssh/id_rsa'
+  children:
+    buildhost:
+      hosts:
+        my_host.example.com:
+  vars:
+    ansible_ssh_common_args: >-
+      -o IdentityFile=~/.ssh/id_rsa_lab_ansible
+      -o StrictHostKeyChecking=no
+      -o UserKnownHostsFile=/dev/null
