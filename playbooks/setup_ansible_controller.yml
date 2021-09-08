@@ -51,10 +51,11 @@
         requirements: "{{ playbook_dir }}/venv/requirements.txt"
         extra_args: --upgrade
 
+    - name: install collections and roles
+      command: >
+        ansible-galaxy collection install -f git+https://github.com/RobVerduijn/lab.git
+      when: true
+
     - name: add networks
       include_role:
         name: RobVerduijn.lab.create_network
-
-    - name: install latest collections and roles
-      command: >
-        ansible-galaxy collection install -f git+https://github.com/RobVerduijn/lab.git
