@@ -177,7 +177,7 @@
     # - admin account
     # - enable remote execution  ( required by the ansible plugin )
     # skipping this task when this play has already installed katello before
-    - name: 'Fase 1 Run installer'
+    - name: Fase 1 Run installer
       command: "{{ install_cmd }}"
       register: foreman_installer_run
       changed_when: foreman_installer_run['rc'] == 2
@@ -201,7 +201,7 @@
       when:
         - foreman_enable_ansible is defined
 
-    - name: 'Fase 2 Run installer'
+    - name: Fase 2 Run installer
       command: "{{ install_cmd }}"
       register: foreman_installer_run
       changed_when: foreman_installer_run['rc'] == 2
@@ -215,7 +215,7 @@
       when:
         - foreman_enable_compute_libvirt is defined
 
-    - name: 'Run installer'
+    - name: Fase 3 Run installer
       command: "{{ install_cmd }}"
       register: foreman_installer_run
       changed_when: foreman_installer_run['rc'] == 2
