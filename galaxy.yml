@@ -43,9 +43,15 @@ tags: []
 # L(specifiers,https://python-semanticversion.readthedocs.io/en/latest/#requirement-specification). Multiple version
 # range specifiers can be set and are separated by ','
 dependencies:
-  community.general: "*"
-  community.libvirt: "*"
-  fedora.linux_system_roles: "*"
+  - ansible.netcommon
+  - community.crypto
+  - community.general
+  - community.libvirt
+  - name: fedora.linux_system_roles
+    version: 1.8.4
+  - freeipa.ansible_freeipa
+  - theforeman.operations
+  - theforeman.foreman
 
 # The URL of the originating SCM repository
 repository: http://example.com/repository
