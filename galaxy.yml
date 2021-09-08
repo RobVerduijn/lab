@@ -43,14 +43,14 @@ tags: []
 # L(specifiers,https://python-semanticversion.readthedocs.io/en/latest/#requirement-specification). Multiple version
 # range specifiers can be set and are separated by ','
 dependencies:
-  - ansible.netcommon
-  - community.crypto
-  - community.general
-  - community.libvirt
+  - ansible.netcommon: "*"
+  - community.crypto: "*"
+  - community.general: "*"
+  - community.libvirt: "*"
   - fedora.linux_system_roles: 1.8.4  # 1.9.1 and 1.9.2 versions are broken
-  - freeipa.ansible_freeipa
-  - theforeman.operations
-  - theforeman.foreman
+  - freeipa.ansible_freeipa: "*"
+  - theforeman.operations: "*"
+  - theforeman.foreman: "*"
 
 # The URL of the originating SCM repository
 repository: https://github.com/RobVerduijn/lab
