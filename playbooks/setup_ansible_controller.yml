@@ -53,7 +53,7 @@
 
     - name: install collections and roles
       command: >
-        ansible-galaxy collection install -f -r {{ lookup('env', 'HOME') }}/.ansible/collections/ansible_collections/my_ansible/lab/roles/requirements.yml
+        ansible-galaxy collection install -f git+https://github.com/RobVerduijn/my_ansible.lab.git
       when: true
 
     - name: add networks
