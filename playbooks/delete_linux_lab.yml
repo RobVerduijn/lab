@@ -13,8 +13,8 @@
   tasks:
     - name: include set vm vars
       include_role:
-        name: my_ansible.lab.set_vm_vars
+        name: RobVerduijn.lab.set_vm_vars
 
     - name: delete {{ vms | join(' ') }}
       include_role:
-        name: my_ansible.lab.delete_guest
+        name: RobVerduijn.lab.delete_guest

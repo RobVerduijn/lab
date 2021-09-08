@@ -9,12 +9,12 @@
   tasks:
     - name: include set vm vars
       include_role:
-        name: my_ansible.lab.set_vm_vars
+        name: RobVerduijn.lab.set_vm_vars
 
     - name: create backing image
       include_role:
-        name: my_ansible.lab.create_backing_image
+        name: RobVerduijn.lab.create_backing_image
 
     - name: delete {{ os_image }}
       include_role:
-        name: my_ansible.lab.delete_guest
+        name: RobVerduijn.lab.delete_guest

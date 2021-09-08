@@ -10,12 +10,12 @@
   tasks:
     - name: clean up previous attempts
       include_role:
-        name: my_ansible.lab.delete_guest
+        name: RobVerduijn.lab.delete_guest
 
     - name: create backing image
       include_role:
-        name: my_ansible.lab.create_backing_image
+        name: RobVerduijn.lab.create_backing_image
 
     - name: delete {{ guest }}
       include_role:
-        name: my_ansible.lab.delete_guest
+        name: RobVerduijn.lab.delete_guest

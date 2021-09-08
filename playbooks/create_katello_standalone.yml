@@ -9,18 +9,18 @@
   tasks:
     - name: include set vm vars
       include_role:
-        name: my_ansible.lab.set_vm_vars
+        name: RobVerduijn.lab.set_vm_vars
 
     - name: delete {{ vms | join(' ') }}
       include_role:
-        name: my_ansible.lab.delete_guest
+        name: RobVerduijn.lab.delete_guest
       when:
         - delete_vm is defined
         - delete_vm | bool
 
     - name: create {{ vms | join(' ') }}
       include_role:
-        name: my_ansible.lab.create_guest
+        name: RobVerduijn.lab.create_guest
 
     - name: ensure guests are started
       community.libvirt.virt:
@@ -32,7 +32,7 @@
 
     - name: add guests to inventory
       include_role:
-        name: my_ansible.lab.add_guest_to_inventory
+        name: RobVerduijn.lab.add_guest_to_inventory
       loop: "{{ guests | dict2items }}"
       loop_control:
         loop_var: guest
@@ -58,8 +58,8 @@
       include_role:
         name: "{{ role_name }}"
       loop:
-        - my_ansible.lab.add_swap_file
-        - my_ansible.lab.remove_cloud_init
+        - RobVerduijn.lab.add_swap_file
+        - RobVerduijn.lab.remove_cloud_init
         - fedora.linux_system_roles.network
         - fedora.linux_system_roles.timesync
       loop_control:
@@ -101,7 +101,7 @@
 
     - name: conditional_reboot
       include_role:
-        name: my_ansible.lab.conditional_reboot
+        name: RobVerduijn.lab.conditional_reboot
 
     - name: ensure hostname resolves
       lineinfile:
