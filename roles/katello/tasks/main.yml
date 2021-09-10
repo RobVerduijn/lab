@@ -1,0 +1,21 @@
+---
+- name: check if foreman is already installed
+  stat:
+    path: /etc/foreman-installer/scenarios.d/.installed
+  register: installed_file
+
+- name: install foreman
+  include_tasks: install.yml
+  when: not installed_file['stat']['exists']
+
+- name: ansible plugin
+  include_tasks: install.yml
+  when:
+    - foreman_plugin_enable_ansible is defined
+    - foreman_plugin_enable_ansible | bool
+
+- name: computer resource libvirt plugin
+  include_tasks: compute_resource_libvirt.yml
+  when:
+    - foreman_plugin_enable_compute_libvirt is defined
+    - foreman_plugin_enable_compute_libvirt | bool

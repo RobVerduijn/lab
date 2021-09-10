@@ -1,15 +1,19 @@
 ---
-# installer role options
-# uncomment to activate them
+# minimal installer role options
 foreman_installer_command: foreman-installer
 foreman_installer_package: foreman-installer-katello
 foreman_installer_scenario: katello
 foreman_installer_verbose: true
 foreman_installer_no_colors: false
+foreman_enable_remote_execution: true
+# optional installer options (commment to disable them)
 foreman_installer_option_org: "{{ orgs[0]['name'] }}"
 foreman_installer_option_loc: "{{ locations[0]['name'] }}"
 foreman_installer_option_admin: admin
 foreman_installer_option_admin_password: katello42  # encrypt this in production
+# optional plugins set to false to disable them
+foreman_plugin_enable_ansible: true
+foreman_plugin_enable_compute_libvirt: true
 
 theforeman_release: '3.0'
 katello_release: '4.2'
@@ -33,11 +37,14 @@ centos_repos:
   - name: powertools
     repofile: CentOS-Linux-PowerTools.repo
 
-katello_packages:
-  - foreman-installer-katello
-  # - foreman-libvirt
-  # - katello
-  # - tfm-rubygem-xmlrpc
+foreman_install_cmd: >-
+  env LANG=en_US.UTF-8 LC_ALL=en_US.UTF8
+  {{ foreman_installer_command }}
+  --scenario {{ foreman_installer_scenario }}
+  {{ (foreman_installer_verbose|bool) | ternary("-v", "") }}
+  {{ (foreman_installer_no_colors|bool) | ternary("--no-colors", "") }}
+  --detailed-exitcodes
+
 
 katello_users:
   - name: foreman
@@ -60,8 +67,6 @@ errata_packages:
 
 # - rubygem-smart_proxy_dhcp_remote_isc
 # - tfm-rubygem-foreman_discovery
-
-compute_host:
 
 katello_keytabs:
   foremanproxy:

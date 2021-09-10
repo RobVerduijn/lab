@@ -1,6 +1,4 @@
 ---
-katello_server_url: "https://{{ inventory_hostname }}"
-
 orgs:
   - name: Zolder Cloud Lab
     description: Mijn persoonlijke hobby omgeving
