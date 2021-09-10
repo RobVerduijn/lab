@@ -66,10 +66,6 @@
       tags:
         - skip_ansible_lint
 
-    - name: configure ipaserver
-      include_role:
-        name: freeipa.ansible_freeipa.ipaserver
-
     - name: include roles
       include_role:
         name: "{{ item }}"
@@ -79,6 +75,7 @@
         - RobVerduijn.lab.conditional_reboot
         - fedora.linux_system_roles.network
         - fedora.linux_system_roles.timesync
+        - freeipa.ansible_freeipa.ipaserver
 
     - name: ready
       debug:
