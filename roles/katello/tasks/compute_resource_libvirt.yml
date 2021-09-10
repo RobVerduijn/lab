@@ -1,0 +1,93 @@
+---
+- name: run foreman installer to {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("enable", "disable") }} libvirt_compute_resource
+  command: >-
+    {{ foreman_install_cmd }}
+    {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("--enable-foreman-compute-libvirt","--no-enable-foreman-compute-libvirt") }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+
+- name: get foreman user info
+  getent:
+    database: passwd
+    key: foreman
+
+- name: create ssh key pair for the foreman user (4096 bits, rsa)
+  community.crypto.openssh_keypair:
+    path: "{{ getent_passwd['foreman'][4] }}/.ssh/id_rsa"
+    owner: foreman
+    group: foreman
+
+- name: read foreman pubkey
+  slurp:
+    src: "{{ getent_passwd['foreman'][4] }}/.ssh/id_rsa.pub"
+  register: foreman_pubkey
+
+- name: delegate block to {{ groups['buildhost'][0] }}
+  block:
+    - name: add foreman user
+      user:
+        name: foreman
+        home: /var/lib/foreman
+        state: present
+
+    - name: install authorized key
+      ansible.posix.authorized_key:
+        user: foreman
+        state: present
+        key: "{{ foreman_pubkey['content'] | b64decode }}"
+
+    - name: allow access via polkit
+      copy:
+        dest: /etc/polkit-1/rules.d/20-libvirt-foreman-manage.rules
+        content: |
+            polkit.addRule(function(action, subject) {
+            if ( action.id == "org.libvirt.unix.manage" && ( subject.isInGroup("admins") || subject.user == "foreman" )) {
+                return polkit.Result.YES;
+            }
+            });
+        mode: 0644
+
+    - name: get {{ groups['buildhost'][0] }} host pub key
+      slurp:
+        src: /etc/ssh/ssh_host_ecdsa_key.pub
+      register: compute_pubkey
+
+    - name: add spice service to firewalld libvirt zone on {{ groups['buildhost'][0] }}
+      ansible.posix.firewalld:
+        zone: libvirt
+        service: spice
+        permanent: true
+        state: enabled
+
+  delegate_to: "{{ groups['buildhost'][0] }}"
+  remote_user: root
+
+- name: add {{ groups['buildhost'][0] }} pub foreman known_hosts file
+  known_hosts:
+    name: "{{ groups['buildhost'][0] }}"
+    key: "{{ groups['buildhost'][0] }} {{ compute_pubkey['content'] | b64decode }}"
+    path: "{{ getent_passwd['foreman'][4] }}/.ssh/known_hosts"
+    state: present
+
+- name: ensure known hosts file is owned by foreman
+  file:
+    path: "{{ getent_passwd['foreman'][4] }}/.ssh/known_hosts"
+    owner: foreman
+    group: foreman
+    mode: 0644
+    state: file
+
+- name: Create livirt compute resource
+  theforeman.foreman.compute_resource:
+    name: "{{ groups['buildhost'][0] }}"
+    locations:
+      - "{{ foreman_installer_option_loc }}"
+    organizations:
+      - "{{ foreman_installer_option_org }}"
+    provider: libvirt
+    provider_params:
+      url: qemu+ssh://{{ groups['buildhost'][0] }}/system
+      display_type: spice
+      set_console_password: false
+    state: present

@@ -6,7 +6,7 @@ network:
     autoconnect: true
     ip:
       address:
-        - 192.168.100.3/24
+        - 192.168.100.4/24
       dns:
         - 192.168.100.1
       dns_search:

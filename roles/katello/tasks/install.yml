@@ -1,0 +1,86 @@
+---
+- name: install release packages
+  package:
+    name: '{{ katello_repos  }}'
+    state: present
+    disable_gpg_check: true
+
+- name: enable dnf modules
+  dnf:
+    name: '@{{ module.name }}:{{ module.version }}'
+    state: present
+  loop: "{{ dnf_modules }}"
+  loop_control:
+    loop_var: module
+
+- name: Enable CentOS repos
+  community.general.ini_file:
+    path: /etc/yum.repos.d/{{ repo.repofile }}
+    create: false  # so raise error if not already installed
+    section: "{{ repo.name }}"
+    option: enabled
+    value: 'true'
+  loop: "{{ centos_repos }}"
+  loop_control:
+    loop_var: repo
+
+- name: ensure hostname resolves
+  lineinfile:
+    path: /etc/hosts
+    regexp: "^{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}"
+    line: "{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}"
+    state: present
+
+- name: update packages
+  package:
+    name: '*'
+    state: latest
+  tags:
+    - skip_ansible_lint
+
+- name: conditional reboot
+  include_role:
+    name: RobVerduijn.lab.conditional_reboot
+
+- name: "Install {{ foreman_installer_package }}"
+  package:
+    name: "{{ foreman_installer_package }}"
+    state: present
+
+- name: set installer command
+  set_fact:
+    install_cmd: "{{ foreman_install_cmd }}"
+
+- name: set foreman initial organization
+  set_fact:
+    install_cmd: >-
+        {{ install_cmd }}
+        --foreman-initial-organization '{{ foreman_installer_option_org }}'
+  when: foreman_installer_option_org is defined
+
+- name: set foreman initial location
+  set_fact:
+    install_cmd: >-
+        {{ install_cmd }}
+        --foreman-initial-location '{{ foreman_installer_option_loc }}'
+  when: foreman_installer_option_loc is defined
+
+- name: set foreman initial admin account
+  set_fact:
+    install_cmd: >-
+        {{ install_cmd }}
+        --foreman-initial-admin-username '{{ foreman_installer_option_admin }}'
+  when: foreman_installer_option_admin is defined
+
+- name: set foreman initial admin password
+  set_fact:
+    install_cmd: >-
+        {{ install_cmd }}
+        --foreman-initial-admin-password '{{ foreman_installer_option_admin_password }}'
+  when: foreman_installer_option_admin_password is defined
+
+- name: Run installer
+  command: "{{ install_cmd }}"
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
