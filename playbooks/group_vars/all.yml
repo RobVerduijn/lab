@@ -1,5 +1,5 @@
 ---
-local_repo_url: http://repo.tjako.thuis/
+local_repo_url: http://repo.linux.lab/
 root_pubkey: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
 ipa_domain: linux.lab
 ipa_realm: "{{ ipa_domain | upper }}"
