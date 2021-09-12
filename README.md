@@ -3,32 +3,47 @@
 Documentation for the collection.
 Working on it to get this repo to confirm to ansible-galaxy
 
-For now install/update with:
+create a playbook directory
 
+    mkdir -p $HOME/code/playbooks
+
+create and activate your python venv
+
+    cd $HOME/code/playbooks
+    python3 -m venv
+    source venv/bin/activate
+
+install/update this collection with:
+
+    cd $HOME/code/playbooks
     ansible-galaxy collection install -f git+https://github.com/RobVerduijn/lab.git  
 To also force update the dependencies:
 
     ansible-galaxy collection install -f --force-with-deps git+https://github.com/RobVerduijn/lab.git
 
-make a copy of the playbook folder somewhere
-
-    mkdir -p $HOME/code
-    cp -r ~/.ansible/collections/ansible_collections/RobVerduijn/lab/playbooks $HOME/code/playbooks
-change to your playbook folder and run
-ansible-playbook setup_ansible_controller.yml
-
-activate your venv
+sync the collection playbooks folder to your playbooks folder
 
     cd $HOME/code/playbooks
-    source venv/bin/activate
+    rsync -av ~/.ansible/collections/ansible_collections/RobVerduijn/lab/playbooks/ $HOME/code/playbooks/
+
+now run the setup_ansible_controller playbook to setup your controller
+
+    cd $HOME/code/playbooks
+    ansible-playbook setup_ansible_controller.yml
+
 check to see if the images are correct and the download urls are pointing to fast mirrors
 
     cd $HOME/code/playbooks
-    vi group_vars/iso.yml 
-and if the pools are pointing to the correct storage pools
-run the download_iso playbook to download the images (which ofcourse takes a long time)
+    cat group_vars/iso.yml
 
-then run the create_distro_image plays to create the backing images which will become a bit over 300Mb in size.
+and if the pools are pointing to the correct storage pools
+run the download_iso playbook to download the images (which takes a very long time)
+
+    cd $HOME/code/playbooks
+    ansible-playbook download_iso.yml
+
+then run the create_distro_image plays to create the backing images 
+which will become a bit over 300Mb in size.
     
     cd $HOME/code/playbooks
     ansible-playbook create_centos8_image.yml
@@ -41,7 +56,7 @@ now you could run one of the following:
 - create_katello_lab.yml which will setup a basic katello server
 - create_ipa.linux.lab.yml which will setup a basic ipa server with dns
 
-Keep an eye on your ram/cpu usage when you do this, your system might not be capable of runnin all the vm's at the same time
+Keep an eye on your ram/cpu usage when you do this, your system might not be capable of runnin all the vm's at the same time.
 
 when your browser gives you a hard time due to the ssl errors
 server ca cert locations
@@ -57,6 +72,7 @@ download with:
     cd /tmp
     curl -Ok https://ipa.linux.lab/ipa/config/ca.crt
     curl -Ok https://katello.linux.lab/pub/katello-server-ca.crt
+
 then import them into your browser to get rid of the ssl complaints
 
 Rob
