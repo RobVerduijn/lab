@@ -1,5 +1,5 @@
 ---
-- name: run foreman installer to {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("enable", "disable") }} libvirt_compute_resource
+- name: run foreman installer to {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("enable", "disable") }} libvirt-compute-resource
   command: >-
     {{ foreman_install_cmd }}
     {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("--enable-foreman-compute-libvirt","--no-enable-foreman-compute-libvirt") }}

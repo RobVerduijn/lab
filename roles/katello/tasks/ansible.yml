@@ -1,4 +1,5 @@
 ---
+# this task will fail if the remote execution ssh plugin is not enabled in a previous installer run
 - name: run foreman installer to {{ (foreman_plugin_enable_ansible|bool) | ternary("enable", "disable") }} ansible
   command: >-
       {{ foreman_install_cmd }}
