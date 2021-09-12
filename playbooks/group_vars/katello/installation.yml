@@ -20,9 +20,20 @@ foreman_plugin_enable_compute_libvirt: true
 # if you don't care for such set the desired options to true
 # or uncomment them
 
-# use katello local dns
-foreman_proxy_dns: false
+# katello use local dns
+foreman_proxy_dns: true
 foreman_proxy_dns_reverse: "{{ (network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns')).split('.')[1:-1] | join('.') }}"
+
+# katello use local dhcp
+foreman_proxy_dhcp: true
+foreman_proxy_dhcp_gateway: "{{ network[0]['ip']['gateway4'] }}"
+foreman_proxy_dhcp_nameservers: "{{ network[0]['ip']['dns'] | join(',') }}"
+foreman_proxy_dhcp_netmask: "{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}"
+foreman_proxy_dhcp_network: "{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('network') }}"
+foreman_proxy_dhcp_range_start: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.150"
+foreman_proxy_dhcp_range_stop: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
+foreman_proxy_dhcp_range: "{{ foreman_proxy_dhcp_range_start }} {{ foreman_proxy_dhcp_range_stop }}"
+foreman_proxy_dhcp_search_domains: "{{ ipa_domain }}"
 
 # you probably don't need to edit the vars below
 theforeman_release: '3.0'
@@ -105,23 +116,13 @@ katello_keytabs:
 katello_idm_dns_server: '{{ groups[ipaserver][0] }}'
 katello_dns_tsig_principal: '{{ katello_keytabs.foremanproxy.principal }}'
 katello_dns_tsig_keytab: '{{ katello_keytabs.foremanproxy.keytab }}'
-katello_dns_reverse: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns'))[2:-1] }}"
-katello_dns_domain: '{{ ipa_domain }}'
+
 katello_realm_principal: '{{ katello_keytabs.realm.principal }}'
 katello_realm_keytab: '{{ katello_keytabs.realm.keytab }}'
 
 katello_tftp_root: '/var/lib/tftpboot'
 katello_tftp_server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-katello_dhcp_server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-katello_dhcp_conf_dir: '{{ katello_volumes.etc_dhcp.mp }}'
-katello_dhcp_lease_dir: '{{ katello_volumes.var_lib_dhcp.mp }}'
-katello_dhcp_domain: '{{ ipa_domain }}'
-katello_dhcp_range_start: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.150"
-katello_dhcp_range_stop: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
-katello_dhcp_gateway: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['gateway'] }}"
-katello_dhcp_nameservers: "{{ network[0]['ip']['dns'] | join(' ') }}"
-katello_dhcp_subnets: >-
-  {{ hostvars[inventory_hostname]['ansible_default_ipv4']['network'] }}/{{ hostvars[inventory_hostname]['ansible_default_ipv4']['netmask'] }}
+
 katello_firewall_ports:
   - 69/udp
   - 80/tcp

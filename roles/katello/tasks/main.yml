@@ -34,3 +34,8 @@
   include_tasks: dns.yml
   when:
     - foreman_proxy_dns is defined
+
+- name: enable dhcp
+  include_tasks: dhcp.yml
+  when:
+    - foreman_proxy_dhcp is defined

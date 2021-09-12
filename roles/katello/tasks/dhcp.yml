@@ -1,0 +1,17 @@
+---
+# according to the installer 'True' is not a boolean hence the lower filter
+- name: run foreman installer to {{ (foreman_proxy_dhcp|bool) | ternary("enable", "disable") }} dhcp
+  command: >-
+      {{ foreman_install_cmd }}
+      --foreman-proxy-dhcp {{ foreman_proxy_dhcp | lower }}
+      --foreman-proxy-dhcp-gateway {{ foreman_proxy_dhcp_gateway }}
+      --foreman-proxy-dhcp-nameservers {{ foreman_proxy_dhcp_nameservers }}
+      --foreman-proxy-dhcp-netmask {{ foreman_proxy_dhcp_netmask }}
+      --foreman-proxy-dhcp-network {{ foreman_proxy_dhcp_network }}
+      --foreman-proxy-dhcp-range '{{ foreman_proxy_dhcp_range }}'
+      --foreman-proxy-dhcp-search-domains {{ foreman_proxy_dhcp_search_domains }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  notify:
+    - restart foreman-proxy
