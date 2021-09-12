@@ -44,3 +44,8 @@
   include_tasks: tftp.yml
   when:
     - foreman_proxy_tftp is defined
+
+- name: enable discovery
+  include_tasks: discovery.yml
+  when:
+    - foreman_plugin_enable_discovery is defined
