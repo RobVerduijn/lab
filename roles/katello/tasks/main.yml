@@ -4,12 +4,22 @@
     path: /etc/foreman-installer/scenarios.d/.installed
   register: installed_file
 
+# I've split up the installation task into many small installation tasks
+# This takes more time to complete but some plugins/features simply will
+# crash the installer if they are configured at the same time
+
 - name: install foreman
   include_tasks: install.yml
   when: not installed_file['stat']['exists']
 
+- name: remote execution ssh plugin
+  include_tasks: remote_execution_ssh.yml
+  when:
+    - foreman_plugin_enable_remote_execution_ssh is defined
+    - foreman_plugin_enable_remote_execution_ssh | bool
+
 - name: ansible plugin
-  include_tasks: install.yml
+  include_tasks: ansible.yml
   when:
     - foreman_plugin_enable_ansible is defined
     - foreman_plugin_enable_ansible | bool
@@ -19,3 +29,23 @@
   when:
     - foreman_plugin_enable_compute_libvirt is defined
     - foreman_plugin_enable_compute_libvirt | bool
+
+- name: enable dns
+  include_tasks: dns.yml
+  when:
+    - foreman_proxy_dns is defined
+
+- name: enable dhcp
+  include_tasks: dhcp.yml
+  when:
+    - foreman_proxy_dhcp is defined
+
+- name: enable tftp
+  include_tasks: tftp.yml
+  when:
+    - foreman_proxy_tftp is defined
+
+- name: enable discovery
+  include_tasks: discovery.yml
+  when:
+    - foreman_plugin_enable_discovery is defined

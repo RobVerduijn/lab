@@ -1,0 +1,5 @@
+---
+- name: restart foreman-proxy
+  systemd:
+    name: foreman-proxy
+    state: restarted
