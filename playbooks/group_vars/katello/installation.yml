@@ -21,11 +21,11 @@ foreman_plugin_enable_compute_libvirt: true
 # or uncomment them
 
 # katello use local dns
-foreman_proxy_dns: true
+foreman_proxy_dns: false
 foreman_proxy_dns_reverse: "{{ (network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns')).split('.')[1:-1] | join('.') }}"
 
 # katello use local dhcp
-foreman_proxy_dhcp: true
+foreman_proxy_dhcp: false
 foreman_proxy_dhcp_gateway: "{{ network[0]['ip']['gateway4'] }}"
 foreman_proxy_dhcp_nameservers: "{{ network[0]['ip']['dns'] | join(',') }}"
 foreman_proxy_dhcp_netmask: "{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}"
@@ -34,6 +34,10 @@ foreman_proxy_dhcp_range_start: "{{ ( network[0]['ip']['address'][0] | ansible.n
 foreman_proxy_dhcp_range_stop: "{{ ( network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
 foreman_proxy_dhcp_range: "{{ foreman_proxy_dhcp_range_start }} {{ foreman_proxy_dhcp_range_stop }}"
 foreman_proxy_dhcp_search_domains: "{{ ipa_domain }}"
+
+# katello use local tftp
+foreman_proxy_tftp: false
+foreman_proxy_tftp_server_name: "{{ network[0]['ip']['address'][0] }}"
 
 # you probably don't need to edit the vars below
 theforeman_release: '3.0'
@@ -113,15 +117,12 @@ katello_keytabs:
     type: user
 
 
+# stuff that might be needed for idm dns integration
 katello_idm_dns_server: '{{ groups[ipaserver][0] }}'
 katello_dns_tsig_principal: '{{ katello_keytabs.foremanproxy.principal }}'
 katello_dns_tsig_keytab: '{{ katello_keytabs.foremanproxy.keytab }}'
-
 katello_realm_principal: '{{ katello_keytabs.realm.principal }}'
 katello_realm_keytab: '{{ katello_keytabs.realm.keytab }}'
-
-katello_tftp_root: '/var/lib/tftpboot'
-katello_tftp_server: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
 katello_firewall_ports:
   - 69/udp

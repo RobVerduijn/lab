@@ -39,3 +39,8 @@
   include_tasks: dhcp.yml
   when:
     - foreman_proxy_dhcp is defined
+
+- name: enable tftp
+  include_tasks: tftp.yml
+  when:
+    - foreman_proxy_tftp is defined
