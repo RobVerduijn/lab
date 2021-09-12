@@ -1,0 +1,9 @@
+---
+- name: run foreman installer to {{ (foreman_plugin_enable_remote_execution_ssh|bool) | ternary("enable", "disable") }} remote-execution-ssh
+  command: >-
+      {{ foreman_install_cmd }}
+      {{ (foreman_plugin_enable_remote_execution_ssh|bool) |
+        ternary("--enable-foreman-proxy-plugin-remote-execution-ssh", "--no-enable-foreman-proxy-plugin-remote-execution-ssh") }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
