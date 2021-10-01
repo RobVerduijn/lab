@@ -3,14 +3,10 @@
 preserve_hostname: False
 hostname: {{ guest['key'].split('.')[0] }}
 fqdn: {{ guest['key'] }}
-
-chpasswd:
-  list: |
-    root:{{ guests[guest['key']]['guest_def']['root_password'] | default(root_password) }}
-  expire: False
-disable_root: 0
+ssh_pwauth: True
 users:
   - name: root
-    ssh_pwauth: True
+    passwd: {{ guests[guest['key']]['guest_def']['root_password'] | default(root_password) | password_hash('sha512') }}
+    lock_passwd: False
     ssh_authorized_keys:
       - {{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}
