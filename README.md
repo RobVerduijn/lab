@@ -12,6 +12,7 @@ create and activate your python venv
     cd $HOME/code/playbooks
     python3 -m venv
     source venv/bin/activate
+    pip3 install ansible-core
 
 install/update this collection with:
 
