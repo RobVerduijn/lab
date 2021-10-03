@@ -42,6 +42,8 @@
           ansible-lint
           jmespath
           netaddr
+          pip
+          requests
           yamllint
         mode: 0600
 
