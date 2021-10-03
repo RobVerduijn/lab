@@ -75,4 +75,3 @@
         loop_var: role_name
       vars:
         swap_file_size_mb: 4096  # MiB
-
