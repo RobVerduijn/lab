@@ -1,0 +1,51 @@
+---
+- name: configure proxies
+  include_tasks: proxies.yml
+  when:
+    - foreman_configure_proxies is defined
+    - foreman_configure_proxies | bool
+
+- name: computer resource libvirt plugin
+  include_tasks: compute_resource_libvirt.yml
+  when:
+    - foreman_plugin_enable_compute_libvirt is defined
+    - foreman_plugin_enable_compute_libvirt | bool
+
+- name: configure domain
+  theforeman.foreman.domain:
+    name: "{{ ipa_domain }}"
+    dns_proxy: "{{ inventory_hostname }}"
+    locations:
+      - "{{ foreman_installer_option_loc }}"
+    organizations:
+      - "{{ foreman_installer_option_org }}"
+    state: present
+  when:
+    - foreman_configure_domain is defined
+    - foreman_configure_domain | bool
+
+- name: linux.lab subnet
+  theforeman.foreman.subnet:
+    name: "{{ ipa_domain }}"
+    network: "{{ foreman_proxy_dhcp_network }}"
+    mask: "{{ foreman_proxy_dhcp_netmask }}"
+    gateway: "{{ foreman_proxy_dhcp_gateway }}"
+    from_ip: "{{ foreman_proxy_dhcp_range_start }}"
+    to_ip: "{{ foreman_proxy_dhcp_range_stop }}"
+    boot_mode: "DHCP"
+    dhcp_proxy: "{{ inventory_hostname }}"
+    discovery_proxy: "{{ inventory_hostname }}"
+    dns_proxy: "{{ inventory_hostname }}"
+    dns_primary: "{{ (foreman_proxy_dhcp_nameservers.split(','))[0] }}"
+    remote_execution_proxies: "{{ inventory_hostname }}"
+    tftp_proxy: "{{ inventory_hostname }}"
+    domains:
+      - "{{ ipa_domain }}"
+    organizations:
+      - "{{ foreman_installer_option_org }}"
+    locations:
+      - "{{ foreman_installer_option_loc }}"
+    state: present
+  when:
+    - foreman_configure_subnet is defined
+    - foreman_configure_subnet | bool

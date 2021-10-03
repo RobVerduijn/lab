@@ -27,8 +27,10 @@
 - name: ensure hostname resolves
   lineinfile:
     path: /etc/hosts
-    regexp: "^{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}"
-    line: "{{ network[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}"
+    regexp: |
+      ^{{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
+    line: |
+      {{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
     state: present
 
 - name: update packages
@@ -84,3 +86,30 @@
   register: foreman_installer_run
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
+
+# enable ssh remote execution plugin
+- name: run foreman installer to {{ (foreman_plugin_enable_remote_execution_ssh|bool) | ternary("enable", "disable") }} remote-execution-ssh
+  command: >-
+      {{ foreman_install_cmd }}
+      {{ (foreman_plugin_enable_remote_execution_ssh|bool) |
+        ternary("--enable-foreman-proxy-plugin-remote-execution-ssh", "--no-enable-foreman-proxy-plugin-remote-execution-ssh") }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  when:
+    - foreman_plugin_enable_remote_execution_ssh is defined
+    - foreman_plugin_enable_remote_execution_ssh | bool
+
+# enable ansible plugin
+# this task requires the remote execution ssh plugin
+- name: run foreman installer to {{ (foreman_plugin_enable_ansible|bool) | ternary("enable", "disable") }} ansible
+  command: >-
+      {{ foreman_install_cmd }}
+      {{ (foreman_plugin_enable_ansible|bool) | ternary("--enable-foreman-plugin-ansible", "--no-enable-foreman-plugin-ansible") }}
+      {{ (foreman_plugin_enable_ansible|bool) | ternary("--enable-foreman-proxy-plugin-ansible", "--no-enable-foreman-proxy-plugin-ansible") }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  when:
+    - foreman_plugin_enable_ansible is defined
+    - foreman_plugin_enable_ansible | bool

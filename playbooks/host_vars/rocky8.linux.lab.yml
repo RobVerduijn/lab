@@ -1,5 +1,5 @@
 ---
-network:
+network_connections:
   - name: eth0
     type: ethernet
     interface_name: eth0

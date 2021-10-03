@@ -1,0 +1,20 @@
+---
+- name: create hostgroup
+  theforeman.foreman.hostgroup:
+    name: "Zolder Hostgroup"
+    organization: "{{ foreman_installer_option_org }}"
+    lifecycle_environment: Library
+    content_view: CentOS 8 CV
+    content_source: "{{ inventory_hostname }}"
+    compute_resource: "{{ groups['buildhost'][0] }}"
+    compute_profile: 2-Medium
+    domain: "{{ ipa_domain }}"
+    subnet: "{{ ipa_domain }}"
+    architecture: x86_64
+    operatingsystem: CentOS 8.4.2105
+    media: CentOS 8 mirror
+    ptable: Kickstart default
+    pxe_loader: PXELinux BIOS
+    root_pass: centos84
+    activation_keys: ZolderCloud AK
+    state: present

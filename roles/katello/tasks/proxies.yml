@@ -1,0 +1,61 @@
+---
+# enable dns proxy
+# according to the installer 'True' is not a boolean hence the lower filter
+- name: run foreman installer to {{ (foreman_proxy_dns|bool) | ternary("enable", "disable") }} dns
+  command: >-
+      {{ foreman_install_cmd }}
+      --foreman-proxy-dns {{ foreman_proxy_dns | lower }}
+      --foreman-proxy-dns-provider {{ foreman_proxy_dns_provider | default('nsupdate') }}
+      --foreman-proxy-dns-reverse {{ foreman_proxy_dns_reverse }}
+      --foreman-proxy-dns-server {{ foreman_proxy_dns_server | default('127.0.0.1') }}
+      --foreman-proxy-dns-forwarders {{ foreman_proxy_dns_forwarders }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  notify:
+    - restart foreman-proxy
+
+# enable dhcp proxy
+# according to the installer 'True' is not a boolean hence the lower filter
+- name: run foreman installer to {{ (foreman_proxy_dhcp|bool) | ternary("enable", "disable") }} dhcp
+  command: >-
+      {{ foreman_install_cmd }}
+      --foreman-proxy-dhcp {{ foreman_proxy_dhcp | lower }}
+      --foreman-proxy-dhcp-gateway {{ foreman_proxy_dhcp_gateway }}
+      --foreman-proxy-dhcp-nameservers {{ foreman_proxy_dhcp_nameservers }}
+      --foreman-proxy-dhcp-netmask {{ foreman_proxy_dhcp_netmask }}
+      --foreman-proxy-dhcp-network {{ foreman_proxy_dhcp_network }}
+      --foreman-proxy-dhcp-range '{{ foreman_proxy_dhcp_range }}'
+      --foreman-proxy-dhcp-search-domains {{ foreman_proxy_dhcp_search_domains }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  notify:
+    - restart foreman-proxy
+
+# enable tftp proxy
+# according to the installer 'True' is not a boolean hence the lower filter
+- name: run foreman installer to {{ (foreman_proxy_tftp|bool) | ternary("enable", "disable") }} tftp
+  command: >-
+      {{ foreman_install_cmd }}
+      --foreman-proxy-tftp {{ foreman_proxy_tftp | lower }}
+      --foreman-proxy-tftp-servername {{ foreman_proxy_tftp_server_name }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  notify:
+    - restart foreman-proxy
+
+# enable discovery plugin and discovery proxy
+# according to the installer 'True' is not a boolean hence the lower filter
+- name: run foreman installer to {{ (foreman_plugin_enable_discovery|bool) | ternary("enable", "disable") }} discovery
+  command: >-
+      {{ foreman_install_cmd }}
+      {{ (foreman_plugin_enable_discovery | ternary("--enable-foreman-plugin-discovery", "--no-enable-foreman-plugin-discovery")) }}
+      {{ (foreman_plugin_enable_discovery | ternary("--enable-foreman-proxy-plugin-discovery", "--no-enable-foreman-proxy-plugin-discovery")) }}
+      --foreman-proxy-plugin-discovery-install-images {{ (foreman_plugin_enable_discovery | ternary("true", "false")) }}
+  register: foreman_installer_run
+  changed_when: foreman_installer_run['rc'] == 2
+  failed_when: foreman_installer_run['rc'] not in [0, 2]
+  notify:
+    - restart foreman-proxy

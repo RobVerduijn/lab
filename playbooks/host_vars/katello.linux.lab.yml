@@ -1,5 +1,5 @@
 ---
-network:
+network_connections:
   - name: eth0
     type: ethernet
     interface_name: eth0
@@ -26,8 +26,8 @@ guest_def:
   dist_family: RedHat
   mem:
     unit: MiB
-    size: 8192
-  vcpu: 2
+    size: 8192  # docs.theforman.org recommends 20G as the minimum, but for testing 8G will do.
+  vcpu: 2  # docs.theforman.org recommends 4 cores at 2Ghz as the minimum, but for testing 2 cores will do.
   devices:
     storage:
       sda:

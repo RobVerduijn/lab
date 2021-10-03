@@ -91,3 +91,63 @@
       display_type: spice
       set_console_password: false
     state: present
+
+- name: compute profile 1-Small
+  theforeman.foreman.compute_profile:
+    name: 1-Small
+    compute_attributes:
+      - compute_resource: "{{ groups['buildhost'][0] }}"
+        vm_attrs:
+          cpus: 1
+          memory: 2147483648
+          nics_attributes:
+            0:
+              type: network
+              network: network_01
+              model: virtio
+          volumes_attributes:
+            0:
+              pool_name: default
+              capacity: 10G
+              allocation: 0G
+              format_type: qcow2
+
+- name: compute profile 2-Medium
+  theforeman.foreman.compute_profile:
+    name: 2-Medium
+    compute_attributes:
+      - compute_resource: "{{ groups['buildhost'][0] }}"
+        vm_attrs:
+          cpus: 2
+          memory: 4294967296
+          nics_attributes:
+            0:
+              type: network
+              network: network_01
+              model: virtio
+          volumes_attributes:
+            0:
+              pool_name: default
+              capacity: 20G
+              allocation: 0G
+              format_type: qcow2
+
+- name: compute profile 3-Large
+  theforeman.foreman.compute_profile:
+    name: 3-Large
+    compute_attributes:
+      - compute_resource: "{{ groups['buildhost'][0] }}"
+        vm_attrs:
+          cpus: 4
+          memory: 8589934592
+          nics_attributes:
+            0:
+              type: network
+              network: network_01
+              model: virtio
+          volumes_attributes:
+            0:
+              pool_name: default
+              capacity: 60G
+              allocation: 0G
+              format_type: qcow2

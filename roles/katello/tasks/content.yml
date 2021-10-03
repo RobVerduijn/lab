@@ -1,0 +1,94 @@
+---
+- name: add content credential
+  theforeman.foreman.content_credential:
+    name: "{{ product['gpg_key_name'] }}"
+    content_type: gpg_key
+    organization: "{{ foreman_installer_option_org }}"
+    content: "{{ product['gpg_key'] }}"
+  loop: "{{ products }}"
+  loop_control:
+    loop_var: product
+
+- name: add sync plan
+  theforeman.foreman.sync_plan:
+    name: Daily Sync
+    organization: "{{ foreman_installer_option_org }}"
+    interval: "daily"
+    enabled: false
+    sync_date: "2017-01-01 00:00:00 UTC"
+    state: present
+
+- name: add product
+  theforeman.foreman.product:
+    name: "{{ product['name'] }}"
+    organization: "{{ foreman_installer_option_org }}"
+    sync_plan: Daily Sync
+    gpg_key: "{{ product['gpg_key_name'] }}"
+    state: present
+  loop: "{{ products }}"
+  loop_control:
+    loop_var: product
+
+- name: "Create repository"
+  theforeman.foreman.repository:
+    name: "{{ product[1]['name'] }}"
+    product: "{{ product[0]['name'] }}"
+    url: "{{ product[1]['url'] }}"
+    content_type: "yum"
+    download_policy: on_demand
+    organization: "{{ foreman_installer_option_org }}"
+    state: present
+  loop: "{{ products | subelements('repositories') }}"
+  loop_control:
+    loop_var: product
+
+- name: Sync repository
+  theforeman.foreman.repository_sync:
+    repository: "{{ product[1]['name'] }}"
+    product: "{{ product[0]['name'] }}"
+    organization: "{{ foreman_installer_option_org }}"
+  loop: "{{ products | subelements('repositories') }}"
+  loop_control:
+    loop_var: product
+
+- name: add a production lifecycle environment
+  theforeman.foreman.lifecycle_environment:
+    name: "{{ lifecycle['name'] }}"
+    organization: "{{ foreman_installer_option_org }}"
+    prior: "{{ lifecycle['prior'] }}"
+    state: "present"
+  loop: "{{ lifecycles }}"
+  loop_control:
+    loop_var: lifecycle
+
+- name: Create content view
+  theforeman.foreman.content_view:
+    name: "{{ content_view['name'] }}"
+    organization: "{{ foreman_installer_option_org }}"
+    repositories: "{{ content_view['repos'] }}"
+  loop: "{{ content_views }}"
+  loop_control:
+    loop_var: content_view
+
+- name: "Ensure content view version 1.0 is published"
+  theforeman.foreman.content_view_version:
+    content_view: "{{ content_view['name'] }}"
+    organization: "{{ foreman_installer_option_org }}"
+    version: 1.0
+    lifecycle_environments:
+      - Library
+      - Test
+      - Productie
+  loop: "{{ content_views }}"
+  loop_control:
+    loop_var: content_view
+
+- name: create activation key
+  theforeman.foreman.activation_key:
+    name: ZolderCloud AK
+    organization: "{{ foreman_installer_option_org }}"
+    lifecycle_environment: "Library"
+    content_view: CentOS 8 CV
+    subscriptions:
+      - name: CentOS8
+    auto_attach: true
