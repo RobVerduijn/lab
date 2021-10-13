@@ -44,10 +44,11 @@ tags: []
 # range specifiers can be set and are separated by ','
 dependencies:
   ansible.netcommon: "*"
+  ansible.windows: "*"
   community.crypto: "*"
   community.general: "*"
   community.libvirt: "*"
-  fedora.linux_system_roles: 1.8.4  # 1.9.1 and 1.9.2 versions are broken
+  fedora.linux_system_roles: "*"
   freeipa.ansible_freeipa: "*"
   theforeman.operations: "*"
   theforeman.foreman: "*"

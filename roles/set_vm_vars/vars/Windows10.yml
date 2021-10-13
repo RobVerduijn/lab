@@ -1,19 +1,19 @@
 ---
 guest_def:
-  os_id: http://fedoraproject.org/fedora/34
-  dist: Fedora
-  dist_major: 34
-  dist_family: RedHat
+  os_id: http://microsoft.com/win/10
+  dist: Windows
+  dist_major: 10
+  dist_family: Windows
   mem:
     unit: MiB
-    size: 4096
+    size: 8192
   vcpu: 2
   devices:
     storage:
       sda:
         # size must be set if the device is not an iso
         # set to size if device in G of T
-        size: 3G
+        size: 60G
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
@@ -46,6 +46,8 @@ guest_def:
       sdb:
         image: "{{ iso[os_image]['name'] }}"
         bootable: true
+      sdc:
+        image: "{{ iso['virtio']['name'] }}"
     network:
       eth0:
         # mac is optional

@@ -7,7 +7,7 @@
 - name: check reboot needed
   command: needs-restarting -r
   register: needs_restarting
-  changed_when: false | bool
+  changed_when: false
   failed_when: needs_restarting['rc'] > 1
 
 - name: reboot

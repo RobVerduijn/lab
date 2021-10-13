@@ -27,7 +27,7 @@
   set_fact:
     guests: |
       {{ guests | combine(
-        { guest: { 'guest_def': { 'devices': { 'storage': { 'sdz': { 'pool': 'default', 'image': cfg_image, 'method': 'keep' }}}}}}, recursive=True) }}
+        { guest: { 'guest_def': { 'devices': { 'storage': { 'sdg': { 'pool': 'default', 'image': cfg_image, 'method': 'keep' }}}}}}, recursive=True) }}
 
 - name: define storage device attributes
   include_tasks: set_storage_device_attributes.yml

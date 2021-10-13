@@ -1,12 +1,14 @@
 #cloud-config
-{# line 1 is a shebang, do not remove or alter it #}
-preserve_hostname: False
+{# do not remove or alter line 1 #}
+preserve_hostname: false
 hostname: {{ guest['key'].split('.')[0] }}
 fqdn: {{ guest['key'] }}
+{%   if guests[guest['key']]['guest_def']['dist_family'] == 'RedHat' %}
 ssh_pwauth: True
 users:
   - name: root
-    passwd: {{ guests[guest['key']]['guest_def']['root_password'] | default(root_password) | password_hash('sha512') }}
-    lock_passwd: False
+    hashed_passwd: {{ guests[guest['key']]['guest_def']['root_password'] | default(root_password) | password_hash('sha512') }}
+    lock_passwd: false
     ssh_authorized_keys:
       - {{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}
+{% endif %}

@@ -1,17 +1,48 @@
 ---
-- name: create ks file
-  template:
-    src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}-ks.cfg.j2"
-    dest: "{{ tmp_dir }}/ks.cfg"
-    mode: 0644
 
 - name: set path and image
   set_fact:
-    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool']]['path'] }}"
-    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['image'] }}"
+    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool']]['path'] }}"
+    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['image'] }}"
 
-- name: generate iso
-  command: >-
-    genisoimage -volid OEMDRV -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/ks.cfg
-  args:
-    creates: "{{ path }}/{{ image }}"
+- block:
+    - name: create ks file
+      template:
+        src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}-ks.cfg.j2"
+        dest: "{{ tmp_dir }}/ks.cfg"
+        mode: 0644
+
+    - name: generate iso
+      command: >-
+        genisoimage -volid OEMDRV -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/ks.cfg
+      args:
+        creates: "{{ path }}/{{ image }}"
+
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'RedHat'
+
+- block:
+    - name: create xml file
+      template:
+        src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}_autounattend.xml.j2"
+        dest: "{{ tmp_dir }}/Autounattend.xml"
+        mode: 0644
+
+    - name: add files
+      copy:
+        src: "{{ file }}"
+        dest: "{{ tmp_dir }}/{{ file }}"
+        mode: 0644
+      loop:
+        - post-install.ps1
+        - cloudbase-init-unattend.conf
+        - Unattend.xml
+      loop_control:
+        loop_var: file
+
+    - name: generate iso
+      command: >-
+        genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/
+      args:
+        creates: "{{ path }}/{{ image }}"
+
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'Windows'

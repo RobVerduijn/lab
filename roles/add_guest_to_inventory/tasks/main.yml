@@ -1,6 +1,6 @@
 ---
 - name: determine {{ guest['key'] }} ip
-  command: virsh domifaddr {{ guest['key'] }} --source agent --interface eth0
+  command: virsh domifaddr {{ guest['key'] }}
   register: virsh_results
   until: "'ipv4' in virsh_results['stdout']"
   retries: 100

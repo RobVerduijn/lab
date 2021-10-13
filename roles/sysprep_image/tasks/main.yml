@@ -6,6 +6,7 @@
     backing_image: "{{ guests[os_image]['guest_def']['devices']['storage']['sda']['backing_image'] |
       default( 'backing_' + guests[os_image]['guest_def']['dist'] + guests[os_image]['guest_def']['dist_major'] | string + '_sda.qcow2' ) }}"
     backing_image_pool: "{{ guests[os_image]['guest_def']['devices']['storage']['sda']['backing_image_pool'] | default('default') }}"
+    dist_family: "{{ guests[os_image]['guest_def']['dist_family'] }}"
 
 - name: set more readable vars
   set_fact:
@@ -16,7 +17,7 @@
   command: virsh list
   register: virsh_list_res
   until: os_image not in virsh_list_res.stdout
-  retries: 120
+  retries: 360
   delay: 10
   changed_when: false
 
@@ -30,10 +31,12 @@
     --hostname localhost.localdomain
   tags:
     - skip_ansible_lint
+  when: dist_family == "RedHat"
 
 - name: sparsify image
   command: >-
     /usr/bin/virt-sparsify {{ image_pool_path }}/{{ image }}
     --compress {{ backing_image_pool_path }}/{{ backing_image }}
+    --tmp {{ image_pool_path }}
   tags:
     - skip_ansible_lint

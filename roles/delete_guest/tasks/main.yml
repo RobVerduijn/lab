@@ -1,4 +1,10 @@
 ---
+- name: refresh current vms
+  community.libvirt.virt:
+    command: list_vms
+  register: current_vms
+  changed_when: false
+
 - name: delete vm
   include_tasks: delete_vm.yml
   loop: "{{ guests | dict2items }}"
