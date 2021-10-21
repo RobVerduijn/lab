@@ -1,0 +1,4 @@
+---
+- name: Register servers
+  redhat_subscription:
+    state: absent

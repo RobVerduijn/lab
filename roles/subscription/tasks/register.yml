@@ -1,0 +1,40 @@
+---
+- name: ask for redhat login
+  pause:
+    prompt: "enter red hat login :"
+    echo: false
+  register: login
+  when: redhat_login is undefined
+
+- name: set login
+  set_fact:
+    redhat_login: "{{ login['user_input'] }}"
+  when: redhat_login is undefined
+
+- name: ask for {{ redhat_login }} password
+  pause:
+    prompt: "enter password for {{ redhat_login }}:"
+    echo: false
+  register: password
+  when: redhat_password is undefined
+  no_log: true
+
+- name: set password
+  set_fact:
+    redhat_password: "{{ password['user_input'] }}"
+  when: redhat_password is undefined
+  no_log: true
+
+- name: test to see if system is already subscribed
+  command: subscription-manager status
+  register: rhsm_status
+  changed_when: false
+  failed_when: rhsm_status.rc > 1
+
+- name: Register servers
+  redhat_subscription:
+    state: present
+    username: '{{ redhat_login }}'
+    password: '{{ redhat_password }}'
+    auto_attach: true
+  when: '"Overall Status: Current" not in rhsm_status["stdout"]'

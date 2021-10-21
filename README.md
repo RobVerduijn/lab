@@ -10,7 +10,7 @@ mkdir -p $HOME/code/playbooks
 Create and activate your python venv.
 ```
 cd $HOME/code/playbooks
-python3 -m venv
+python3 -m venv venv
 source venv/bin/activate
 pip3 install ansible-core
 ```

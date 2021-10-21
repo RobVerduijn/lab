@@ -29,6 +29,7 @@
     --delete '/etc/NetworkManager/system-connections/*'
     --delete '/var/lib/systemd/random-seed'
     --hostname localhost.localdomain
+    --selinux-relabel
   tags:
     - skip_ansible_lint
   when: dist_family == "RedHat"

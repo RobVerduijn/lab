@@ -13,7 +13,23 @@ iso:
     name: Fedora-Server-netinst-x86_64-34-1.2.iso
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-netinst-x86_64-34-1.2.iso
     pool: default
+  Fedora35:
+    name: Fedora-Server-netinst-x86_64-35_Beta-1.2.iso
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/test/35_Beta/Server/x86_64/iso/Fedora-Server-netinst-x86_64-35_Beta-1.2.iso
+    pool: default
   Rocky8:
     name: Rocky-8.4-x86_64-dvd1.iso
     url: https://download.rockylinux.org/pub/rocky/8/isos/aarch64/Rocky-8.4-aarch64-dvd1.iso
+    pool: default
+  RedHat8:
+    name: rhel-8.4-x86_64-dvd.iso
+    url: manual download
+    pool: default
+  Windows10:
+    name: Win10_21H1_English_x64.iso
+    url: manual download
+    pool: default
+  virtio:
+    name: virtio-win.iso
+    url: manual download
     pool: default

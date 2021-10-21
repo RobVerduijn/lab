@@ -1,0 +1,12 @@
+---
+- name: test if the repo is already enabled
+  command: subscription-manager repos --list-enabled
+  register: repo_res
+  changed_when: false
+
+- name: enable the repo
+  command: subscription-manager repos --enable {{ repo }}
+  when: repo not in repo_res.stdout
+  loop: '{{ repos }}'
+  loop_control:
+    loop_var: repo

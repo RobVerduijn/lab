@@ -129,19 +129,9 @@
             </AutoLogon>
             <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd.exe /c start /wait powershell -ExecutionPolicy ByPass -File D:\ConfigureRemotingForAnsible.ps1 -DisableBasicAuth -EnableCredSSP -Verbose</CommandLine>
                     <Order>1</Order>
-                    <CommandLine>powerShell Invoke-WebRequest -Uri http://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1 -OutFile $env:temp\ConfigureRemotingForAnsible.ps1</CommandLine>
-                    <Description>Download powershell script</Description>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>powershell -ExecutionPolicy ByPass -File C:\Users\Administrator\AppData\Local\Temp\ConfigureRemotingForAnsible.ps1 -DisableBasicAuth -EnableCredSSP -Verbose</CommandLine>
-                    <Order>2</Order>
-                    <Description>Run powershell script</Description>
-                </SynchronousCommand>
-                <SynchronousCommand wcm:action="add">
-                    <CommandLine>powershell -ExecutionPolicy ByPass -File D:\post-install.ps1</CommandLine>
-                    <Order>3</Order>
-                    <Description>Run postinstall script</Description>
+                    <Description>Configure WinRM</Description>
                 </SynchronousCommand>
             </FirstLogonCommands>
         </component>

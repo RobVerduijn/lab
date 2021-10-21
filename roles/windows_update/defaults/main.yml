@@ -1,0 +1,21 @@
+---
+category_names:
+  - Application
+  - Connectors
+  - CriticalUpdates
+  - DefinitionUpdates
+  - DeveloperKits
+  - Drivers
+  - FeaturePacks
+  - Guidance
+  - SecurityUpdates
+  - ServicePacks
+  - Tools
+  - UpdateRollups
+  - Updates
+  - Upgrades
+
+windows_10_versions:
+  - Microsoft Windows 10 Enterprise
+  - Microsoft Windows 10 Home
+  - Microsoft Windows 10 Pro

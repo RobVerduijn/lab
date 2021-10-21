@@ -33,9 +33,7 @@
         dest: "{{ tmp_dir }}/{{ file }}"
         mode: 0644
       loop:
-        - post-install.ps1
-        - cloudbase-init-unattend.conf
-        - Unattend.xml
+        - ConfigureRemotingForAnsible.ps1
       loop_control:
         loop_var: file
 

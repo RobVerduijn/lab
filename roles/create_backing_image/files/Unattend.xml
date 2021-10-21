@@ -18,17 +18,17 @@
           <LocalAccounts>
               <LocalAccount wcm:action="add">
                   <Password>
-                      <Value>Windows10</Value>
+                      <Value>windowslab</Value>
                       <PlainText>true</PlainText>
                   </Password>
                   <Description>Local admin account</Description>
-                  <DisplayName>Rob</DisplayName>
+                  <DisplayName>Admin</DisplayName>
                   <Group>Administrators</Group>
-                  <Name>rob</Name>
+                  <Name>admin</Name>
               </LocalAccount>
           </LocalAccounts>
           <AdministratorPassword>
-                  <Value>Windows10</Value>
+                  <Value>windowslab</Value>
                   <PlainText>true</PlainText>
           </AdministratorPassword>
       </UserAccounts>
@@ -37,14 +37,8 @@
   <settings pass="specialize">
     <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <RunSynchronous>
-        <!-- Cloudbase init will not run the network config plugin if it has already run once, this ensures cloudbase will always run the plugin -->
         <RunSynchronousCommand wcm:action="add">
           <Order>1</Order>
-          <Path>powershell.exe -command "Remove-Item -Recurse 'HKLM:\Software\Cloudbase Solutions'"</Path>
-          <Description>Delete old cloudbase registry entries</Description>
-        </RunSynchronousCommand>
-        <RunSynchronousCommand wcm:action="add">
-          <Order>2</Order>
           <Path>cmd.exe /c ""C:\Program Files\Cloudbase Solutions\Cloudbase-Init\Python\Scripts\cloudbase-init.exe" --config-file "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\cloudbase-init-unattend.conf" &amp;&amp; exit 1 || exit 2"</Path>
           <Description>Run Cloudbase-Init to set the hostname</Description>
           <WillReboot>OnRequest</WillReboot>

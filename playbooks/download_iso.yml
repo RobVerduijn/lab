@@ -29,3 +29,4 @@
         dest: "{{ ansible_libvirt_pools[iso[item]['pool']]['path'] }}/{{ iso[item]['name'] }}"
         mode: 0644
       loop: "{{ downloads }}"
+      when: iso[item]['url'] != 'manual download'

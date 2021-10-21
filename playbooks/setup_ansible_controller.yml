@@ -16,8 +16,19 @@
         name:
           - genisoimage
           - python3-virtualenv
+          - virtio-win
         state: present
-      become: true
+      remote_user: root
+
+    - name: ensure symlink to iso is present in default images folder
+      file:
+        src: /usr/share/virtio-win/virtio-win.iso
+        dest: /var/lib/libvirt/images/virtio-win.iso
+        state: link
+        owner: qemu
+        group: qemu
+        setype: virt_content_t
+        mode: 0644
       remote_user: root
 
     - name: debug vars
@@ -43,6 +54,7 @@
           jmespath
           netaddr
           pip
+          pywinrm
           requests
           yamllint
         mode: 0600

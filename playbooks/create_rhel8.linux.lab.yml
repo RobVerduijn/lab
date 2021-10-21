@@ -1,13 +1,11 @@
 ---
-- name: create centos8.linux.lab guest
+- name: create rhel8.linux.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
     vms:
-      - centos8.linux.lab
-      - rocky8.linux.lab
-
+      - rhel8.linux.lab
   tasks:
     - name: include set vm vars
       include_role:
@@ -39,8 +37,8 @@
       loop_control:
         loop_var: guest
 
-- name: configure guests
-  hosts: "{{ hostvars[groups['buildhost'][0]]['vms'] | default('fail') }}"
+- name: configure rhel
+  hosts: rhel8.linux.lab
   gather_facts: false
   remote_user: root
 
@@ -51,10 +49,22 @@
     - name: gather facts
       setup:
 
-    - name: add swap file
+    - name: include roles
       include_role:
-        name: RobVerduijn.lab.add_swap_file
+        name: "{{ role }}"
+      loop:
+        - RobVerduijn.lab.add_swap_file
+        - RobVerduijn.lab.remove_cloud_init
+        - fedora.linux_system_roles.network
+        - RobVerduijn.lab.subscription
+        - fedora.linux_system_roles.timesync
+        - RobVerduijn.lab.update
+        - RobVerduijn.lab.conditional_reboot
+      loop_control:
+        loop_var: role
+      vars:
+        sub_action: register
 
-    - name: show {{ inventory_hostname }} hostvars
+    - name: ready
       debug:
-        var: hostvars[inventory_hostname]
+        msg: "{{ inventory_hostname }} is ready"

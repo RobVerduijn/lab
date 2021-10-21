@@ -1,4 +1,20 @@
 ---
+administrator: Admin
+administrator_password: Windows10
+network_connections:
+  - name: eth0
+    type: ethernet
+    interface_name: eth0
+    autoconnect: true
+    ip:
+      address:
+        - 192.168.122.3/24
+      dns:
+        - 192.168.122.1
+      dns_search:
+        - windows.lab
+      gateway4: 192.168.122.1
+
 guest_def:
   os_id: http://microsoft.com/win/10
   dist: Windows
@@ -13,11 +29,11 @@ guest_def:
       sda:
         # size must be set if the device is not an iso
         # set to size if device in G of T
-        size: 32G
+        size: 60G
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        # backing_image:
+        backing_image: backing_Windows10_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:
@@ -43,11 +59,7 @@ guest_def:
         # set to create if you want to force a new empty image
         # if image is set to an iso file the method will be forced to keep
         # method: create
-      sdb:
-        image: "{{ iso[os_image]['name'] }}"
-        bootable: true
-      sdc:
-        image: "{{ iso['virtio']['name'] }}"
+
     network:
       eth0:
         # mac is optional

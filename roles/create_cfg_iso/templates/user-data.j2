@@ -3,7 +3,7 @@
 preserve_hostname: false
 hostname: {{ guest['key'].split('.')[0] }}
 fqdn: {{ guest['key'] }}
-{%   if guests[guest['key']]['guest_def']['dist_family'] == 'RedHat' %}
+{% if guests[guest['key']]['guest_def']['dist_family'] == 'RedHat' %}
 ssh_pwauth: True
 users:
   - name: root
@@ -11,4 +11,12 @@ users:
     lock_passwd: false
     ssh_authorized_keys:
       - {{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}
+
+{%   if guests[guest['key']]['guest_def']['dist'] in ['Rocky','RedHat','CentOS'] %}
+{# workaround for cloud-utils-growpart does not support lvm #}
+runcmd:
+  - growpart /dev/sda 2
+  - pvresize /dev/sda2
+  - lvextend -r -l +100%FREE /dev/rhel/root
+{%   endif %}
 {% endif %}

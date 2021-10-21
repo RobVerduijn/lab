@@ -1,4 +1,4 @@
-instance-id: {{ guest['key'].split('.')[0] }}
+instance-id: {{ lookup('password', '/dev/null length=32 chars=hexdigits') | to_uuid }}
 {#local-hostname: {{ guest }}#}
 
 {% if guests[guest['key']]['network_connections'][0]['ip']['address'] is defined -%}

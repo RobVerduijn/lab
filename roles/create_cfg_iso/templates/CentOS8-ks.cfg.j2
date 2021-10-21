@@ -30,7 +30,7 @@ clearpart --none --initlabel
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
 {# to simplefy the image only a /boot and / partition #}
-autopart --type=plain --nohome --noswap 
+autopart {#--type=lvm --nohome#} --noswap
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}
@@ -57,12 +57,17 @@ pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
 pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
+
 %post --erroronfail
+echo "Enable verbose booting"
+sed -i 's/ rhgb quiet//' /etc/default/grub
+[ -e /boot/grub2/grub.cfg ] && sed -i 's/ rhgb quiet//' /boot/grub2/grub.cfg
+[ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
+echo "Enable lvm discards"
+sed -i 's/^\(\s\+\)issue_discards = 0/\1issue_discards = 1/' /etc/lvm/lvm.conf
 echo "remove big firmware package"
 dnf remove -y *-firmware
 dnf clean all
-echo "workaround for cloud-init selinux fubar"
-touch /.autorelabel
 # do not allow qemu guest agent rpc commands in production
 # enabling them here for dynamic libvirt inventory lab use
 # echo "allow qemu guest agent rpc commands"

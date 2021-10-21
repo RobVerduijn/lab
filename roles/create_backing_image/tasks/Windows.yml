@@ -1,0 +1,156 @@
+---
+- block:
+    - name: wait for connection
+      wait_for_connection:
+
+    - name: check if windows update service is done starting
+      ansible.builtin.win_shell: (Get-Service -name wuauserv).status
+      register: state_services
+      until: "'Running' in state_services.stdout"
+      retries: 360
+      delay: 10
+
+    - name: include windows update
+      include_role:
+        name: RobVerduijn.lab.windows_update
+
+    - name: ensure windows update service is stopped
+      ansible.windows.win_service:
+        name: wuauserv
+        state: stopped
+        start_mode: disabled
+
+    - name: check if windows update service is done stopping
+      ansible.builtin.win_shell: (Get-Service -name wuauserv).status
+      register: state_services
+      until: "'Stopped' in state_services.stdout"
+      retries: 360
+      delay: 10
+
+    - name: remove all update data
+      ansible.windows.win_file:
+        path: C:\Windows\SoftwareDistribution
+        state: absent
+      register: remove_res
+      retries: 360
+      until: not remove_res.failed | bool
+      ignore_errors: true
+      delay: 10
+
+    - name: ensure windows update service is started
+      ansible.windows.win_service:
+        name: wuauserv
+        state: started
+        start_mode: delayed
+
+    - name: add redhat as trusted publisher
+      ansible.windows.win_shell: |
+        $BasePath = "C:\Windows\Temp\Install"
+        New-item $BasePath -itemtype directory
+        $CertName = "balloon.cer"
+        $ExportCert = Join-Path $BasePath -ChildPath $CertName
+        $Cert = (Get-AuthenticodeSignature "F:\Balloon\w10\amd64\balloon.sys").SignerCertificate
+        $ExportType = [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert
+        [System.IO.File]::WriteAllBytes($ExportCert, $Cert.Export($ExportType))
+        Import-Certificate -FilePath $ExportCert -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
+
+    - name: install virtio win guest tools (Drivers)
+      ansible.windows.win_package:
+        path: F:\virtio-win-gt-x64.msi
+        state: present
+        arguments: /passive
+
+    - name: install virtio win guest agent
+      ansible.windows.win_package:
+        path: F:\guest-agent\qemu-ga-x86_64.msi
+        state: present
+        arguments: /passive
+
+    - name: download cloudbase_init
+      ansible.windows.win_get_url:
+        url: "{{ cloudbase_url }}"
+        dest: C:\Windows\Temp\Install\CloudbaseInitSetup_x64.msi
+
+    - name: install cloudbase_init
+      ansible.windows.win_package:
+        path: C:\Windows\Temp\Install\CloudbaseInitSetup_x64.msi
+        state: present
+
+    - name: copy config files
+      ansible.windows.win_copy:
+        src: "{{ cloudbase_conf_file }}"
+        dest: C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\{{ cloudbase_conf_file }}
+      loop:
+        - Unattend.xml
+        - cloudbase-init-unattend.conf
+      loop_control:
+        loop_var: cloudbase_conf_file
+
+    - name: find files in temp folder
+      ansible.windows.win_find:
+        paths:
+          - C:\Windows\Temp
+      register: files_found
+
+    - name: find dirs in temp folder
+      ansible.windows.win_find:
+        paths:
+          - C:\Windows\Temp
+        file_type: directory
+      register: dirs_found
+
+    - name: delete files and dirs
+      ansible.windows.win_file:
+        path: "{{ file['path'] }}"
+        state: absent
+      loop: "{{ files_found['files'] + dirs_found['files'] }}"
+      loop_control:
+        loop_var: file
+      ignore_errors: true
+
+    - name: download SDelete
+      ansible.windows.win_get_url:
+        url: "https://download.sysinternals.com/files/SDelete.zip"
+        dest: C:\SDelete.zip
+
+    - name: unzip SDelete
+      community.windows.win_unzip:
+        src: C:\SDelete.zip
+        dest: C:\
+        delete_archive: true
+
+    - name: delete files
+      ansible.windows.win_file:
+        path: "{{ file }}"
+        state: absent
+      loop:
+        - C:\Eula.txt
+        - C:\sdelete.exe
+        - C:\sdelete64a.exe
+      loop_control:
+        loop_var: file
+      ignore_errors: true
+
+    - name: zero filesystem
+      ansible.windows.win_command: 'C:\sdelete64.exe -accepteula -nobanner -z C:'
+
+    - name: delete C:\sdelete64.exe
+      ansible.windows.win_file:
+        path: C:\sdelete64.exe
+        state: absent
+
+    - name: run windows sysprep
+      ansible.windows.win_command: >-
+        C:\Windows\System32\Sysprep\sysprep.exe /quiet /generalize /oobe /shutdown /mode:vm
+          "/unattend:C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\Unattend.xml"
+      register: sysprep_res
+      ignore_errors: true
+
+  delegate_to: "{{ os_image }}"
+  vars:
+    ansible_user: "Administrator"
+    ansible_password: "{{ administrator_password }}"
+    ansible_connection: winrm
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_read_timeout_sec: 600
