@@ -31,6 +31,17 @@
     name: "{{ os_image }}"
     state: running
 
+- name: set guest key
+  set_fact:
+    guest: "{{ {} | combine({ 'key': os_image }) }}"
+
+- name: add {{ os_image }} to inventory
+  include_role:
+    name: add_guest_to_inventory
+
+- name: include {{ guests[os_image]['guest_def']['dist_family'] }}
+  include_tasks: "{{ guests[os_image]['guest_def']['dist_family'] }}.yml"
+
 - name: sysprep image
   include_role:
     name: RobVerduijn.lab.sysprep_image

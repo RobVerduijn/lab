@@ -1,0 +1,67 @@
+---
+- name: create centos8stream.linux.lab guest
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+  vars:
+    vms:
+      - centos8stream.linux.lab
+  tasks:
+    - name: include set vm vars
+      include_role:
+        name: RobVerduijn.lab.set_vm_vars
+
+    - name: delete {{ vms | join(' ') }}
+      include_role:
+        name: RobVerduijn.lab.delete_guest
+      when:
+        - delete_vm is defined
+        - delete_vm | bool
+
+    - name: create {{ vms | join(' ') }}
+      include_role:
+        name: RobVerduijn.lab.create_guest
+
+    - name: ensure guests are started
+      community.libvirt.virt:
+        name: "{{ guest['key'] }}"
+        state: running
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+    - name: add guests to inventory
+      include_role:
+        name: RobVerduijn.lab.add_guest_to_inventory
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+- name: configure rocky
+  hosts: centos8stream.linux.lab
+  gather_facts: false
+  remote_user: root
+
+  tasks:
+    - name: wait for {{ inventory_hostname }} to fully start
+      wait_for_connection:
+
+    - name: gather facts
+      setup:
+
+    - name: include roles
+      include_role:
+        name: "{{ role }}"
+      loop:
+        - RobVerduijn.lab.add_swap_file
+        - RobVerduijn.lab.remove_cloud_init
+        - fedora.linux_system_roles.network
+        - fedora.linux_system_roles.timesync
+        - RobVerduijn.lab.update
+        - RobVerduijn.lab.conditional_reboot
+      loop_control:
+        loop_var: role
+
+    - name: ready
+      debug:
+        msg: "{{ inventory_hostname }} is ready"

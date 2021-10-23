@@ -1,0 +1,73 @@
+---
+- block:
+  - name: gather facts
+    setup:
+
+  - name: register system
+    include_role:
+      name: RobVerduijn.lab.subscription
+    vars:
+      sub_action: register
+    when: guests[guest['key']]['guest_def']['dist'] == 'RedHat'
+
+  - name: update packages
+    command: dnf update -y --setopt=install_weak_deps=False --nodocs
+    register: update_all
+    changed_when: "'Upgraded:' in update_all['stdout']"
+
+  - name: remove big firmware packages
+    package:
+      name: "*-firmware"
+      state: absent
+      autoremove: true
+
+  - name: include conditional reboot
+    include_role:
+      name: RobVerduijn.lab.conditional_reboot
+
+  - name: find old kernels
+    command: dnf repoquery --installonly --latest-limit=-2 -q
+    register: kernels_found
+    changed_when: false
+
+  - name: delete old kernels
+    package:
+      name: "{{ (kernels_found['stdout'] | trim).split(' ') }}"
+      state: absent
+      autoremove: true
+    when: (kernels_found['stdout'] | trim).split(' ') | length > 0
+
+  - name: install cloud-init and cloud-utils-growpart
+    command: dnf install -y --setopt=install_weak_deps=False --nodocs cloud-init cloud-utils-growpart
+    register: install_cloud
+    changed_when: "'Installed:' in install_cloud['stdout']"
+
+  - name: unregister system
+    include_role:
+      name: RobVerduijn.lab.subscription
+    vars:
+      sub_action: unregister
+    when: guests[guest['key']]['guest_def']['dist'] == 'RedHat'
+
+  - name: ensure cloud-init services are enabled
+    systemd:
+      name: "{{ service }}"
+      enable: true
+    loop:
+      - cloud-init
+      - cloud-init-local
+      - cloud-final
+      - cloud-config
+    loop_control:
+      loop_var: service
+    when: ansible_distribution == 'Fedora'
+
+  delegate_to: "{{ os_image }}"
+  vars:
+    ansible_user: "root"
+    ansible_password: "{{ root_password }}"
+
+- name: shutdown kvm guest
+  community.libvirt.virt:
+    command: shutdown
+    name: "{{ os_image }}"

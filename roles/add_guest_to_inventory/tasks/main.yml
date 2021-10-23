@@ -1,13 +1,24 @@
 ---
-- name: determine {{ guest['key'] }} ip
-  command: virsh domifaddr {{ guest['key'] }} --source agent --interface eth0
-  register: virsh_results
-  until: "'ipv4' in virsh_results['stdout']"
-  retries: 100
-  changed_when: false
+- block:
+    - name: determine {{ guest['key'] }} ip
+      command: virsh domifaddr {{ guest['key'] }}
+      register: virsh_results
+      until: "'ipv4' in virsh_results['stdout']"
+      retries: 360
+      changed_when: false
+
+    - name: add guest to inventory
+      add_host:
+        hostname: "{{ guest['key'] }}"
+        groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default([]) }}"
+        ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$','\\1'))[0]  }}"
+  when:
+    - guests[guest['key']]['network_connections'][0]['ip']['address'] is not defined
 
 - name: add guest to inventory
   add_host:
     hostname: "{{ guest['key'] }}"
     groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default([]) }}"
-    ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$','\\1'))[0]  }}"
+    ansible_host: "{{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}"
+  when:
+    - guests[guest['key']]['network_connections'][0]['ip']['address'] is defined

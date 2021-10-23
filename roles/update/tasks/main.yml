@@ -1,0 +1,6 @@
+---
+- name: update all packages
+  package:
+    name: '*'
+    state: latest
+  tags: skip_ansible_lint

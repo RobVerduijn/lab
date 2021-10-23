@@ -8,6 +8,9 @@ network_connections:
       dhcp4: true
 
 guest_def:
+  ansible_user: root
+  root_password: centosstream  # encrypt this with ansible-vault
+  root_pubkey: "{{ root_pubkey }}"
   os_id: http://centos.org/centos-stream/8
   dist: CentOS
   dist_major: 8

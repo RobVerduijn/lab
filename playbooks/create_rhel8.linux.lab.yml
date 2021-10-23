@@ -1,11 +1,11 @@
 ---
-- name: create ipa.linux.lab guest
+- name: create rhel8.linux.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
     vms:
-      - ipa.linux.lab
+      - rhel8.linux.lab
   tasks:
     - name: include set vm vars
       include_role:
@@ -37,8 +37,8 @@
       loop_control:
         loop_var: guest
 
-- name: configure ipaserver
-  hosts: ipaserver
+- name: configure rhel
+  hosts: rhel8.linux.lab
   gather_facts: false
   remote_user: root
 
@@ -49,33 +49,21 @@
     - name: gather facts
       setup:
 
-    # ipa dns does not work yet
-    # so configuring the resolv.conf to
-    # forward to the libvirt network dns
-    - name: temporary overide dns config
-      copy:
-        dest: /etc/resolv.conf
-        content: |
-          nameserver 192.168.100.1
-        mode: 0644
-
-    - name: update system
-      package:
-        name: '*'
-        state: latest
-      tags:
-        - skip_ansible_lint
-
     - name: include roles
       include_role:
-        name: "{{ item }}"
+        name: "{{ role }}"
       loop:
         - RobVerduijn.lab.add_swap_file
         - RobVerduijn.lab.remove_cloud_init
-        - RobVerduijn.lab.conditional_reboot
         - fedora.linux_system_roles.network
+        - RobVerduijn.lab.subscription
         - fedora.linux_system_roles.timesync
-        - freeipa.ansible_freeipa.ipaserver
+        - RobVerduijn.lab.update
+        - RobVerduijn.lab.conditional_reboot
+      loop_control:
+        loop_var: role
+      vars:
+        sub_action: register
 
     - name: ready
       debug:

@@ -9,7 +9,7 @@ namespace: RobVerduijn
 name: lab
 
 # The version of the collection. Must be compatible with semantic versioning
-version: 0.0.4
+version: 0.0.5
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: README.md
@@ -44,13 +44,15 @@ tags: []
 # range specifiers can be set and are separated by ','
 dependencies:
   ansible.netcommon: "*"
+  ansible.windows: "*"
   community.crypto: "*"
   community.general: "*"
   community.libvirt: "*"
-  fedora.linux_system_roles: 1.8.4  # 1.9.1 and 1.9.2 versions are broken
+  community.windows: "*"
+  fedora.linux_system_roles: "*"
   freeipa.ansible_freeipa: "*"
-  theforeman.operations: "*"
   theforeman.foreman: "*"
+  theforeman.operations: "*"
 
 # The URL of the originating SCM repository
 repository: https://github.com/RobVerduijn/lab

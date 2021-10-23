@@ -1,4 +1,8 @@
 ---
+- name: debug shit
+  debug:
+    var: guests[guest['key']]['guest_def']
+
 - name: create cloud init files
   template:
     src: "{{ item }}.j2"
@@ -10,8 +14,8 @@
 
 - name: set path and image
   set_fact:
-    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool']]['path'] }}"
-    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['image'] }}"
+    path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool']]['path'] }}"
+    image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['image'] }}"
 
 - name: generate iso
   command: genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/user-data {{ tmp_dir }}/meta-data

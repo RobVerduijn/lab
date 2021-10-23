@@ -16,4 +16,4 @@
 - name: refresh libvirt pool facts
   community.libvirt.virt_pool:
     command: refresh
-    name: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdz']['pool'] }}"
+    name: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool'] }}"

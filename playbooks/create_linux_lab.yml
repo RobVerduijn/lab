@@ -7,8 +7,6 @@
     vms:
       - centos8.linux.lab
       - centos8stream.linux.lab
-      - rocky8.linux.lab
-      - fedora34.linux.lab
 
   tasks:
     - name: include set vm vars

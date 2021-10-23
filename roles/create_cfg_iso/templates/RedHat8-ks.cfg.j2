@@ -1,0 +1,75 @@
+{# version=EL8 #}
+{# repo information #}
+{# Use CDROM installation media #}
+cdrom
+repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
+{# Keyboard layouts #}
+keyboard --vckeymap=us --xlayouts='us'
+{# System language #}
+lang en_US.UTF-8
+{# Network information #}
+network --bootproto=dhcp --device=eth0 --ipv6=auto --activate
+network --hostname=localhost.localdomain
+{# Root password #}
+rootpw --iscrypted {{ root_password | password_hash('sha512') }}
+{# Do NOT Run the Setup Agent on first boot #}
+firstboot --disable
+{# Do not ask for confirmation #}
+cmdline
+{# accept eula #}
+eula --agreed
+{# reboot or poweroff after installation #}
+reboot
+{# System services #}
+services --disabled="chronyd"
+{# System timezone #}
+timezone Europe/Amsterdam --isUtc --nontp
+{# Partition clearing information #}
+ignoredisk --only-use=sda
+clearpart --none --initlabel
+{# Disk partitioning information #}
+{# to reduce image size no swap #}
+{# to simplefy the image only a /boot and / partition #}
+autopart {#--type=lvm --nohome#} --noswap
+{# System bootloader configuration#}
+bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
+{# package selection #}
+%packages --excludedocs
+#@^minimal-environment
+@core
+kernel-core
+qemu-guest-agent
+-dracut-config-rescue
+-firewalld
+-geolite2-city
+-geolite2-country
+-kernel
+-plymount
+-zram-generator-defaults
+-python3-libselinux
+kexec-tools
+
+%end
+
+%addon com_redhat_kdump --enable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
+pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
+%end
+
+%post --erroronfail
+echo "Enable verbose booting"
+sed -i 's/ rhgb quiet//' /etc/default/grub
+[ -e /boot/grub2/grub.cfg ] && sed -i 's/ rhgb quiet//' /boot/grub2/grub.cfg
+[ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
+echo "Enable lvm discards"
+sed -i 's/^\(\s\+\)issue_discards = 0/\1issue_discards = 1/' /etc/lvm/lvm.conf
+# do not allow qemu guest agent rpc commands in production
+# enabling them here for dynamic libvirt inventory lab use
+# echo "allow qemu guest agent rpc commands"
+# sed -i 's/^BLACKLIST_RPC/#BLACKLIST_RPC/' /etc/sysconfig/qemu-ga
+%end

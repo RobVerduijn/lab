@@ -1,0 +1,9 @@
+---
+- name: test if the pool is already attached
+  command: subscription-manager list --pool-only --consumed
+  register: pool_res
+  changed_when: false
+
+- name: register system to pool
+  command: subscription-manager attach --pool {{ pool_id }}
+  when: pool_id not in pool_res.stdout
