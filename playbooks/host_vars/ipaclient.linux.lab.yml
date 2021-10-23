@@ -15,7 +15,7 @@ network_connections:
 
 guest_def:
   ansible_user: root
-  root_password: rocky84  # encrypt this with ansible-vault
+  root_password: rockylinux  # encrypt this with ansible-vault
   root_pubkey: "{{ root_pubkey }}"
   host_groups:
     - all
