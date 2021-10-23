@@ -19,7 +19,7 @@ cmdline
 {# accept eula #}
 eula --agreed
 {# reboot or poweroff after installation #}
-poweroff
+reboot
 {# System services #}
 services --disabled="chronyd"
 {# System timezone #}
@@ -37,8 +37,6 @@ bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifna
 %packages --excludedocs
 #@^minimal-environment
 @core
-cloud-init
-cloud-utils-growpart
 kernel-core
 qemu-guest-agent
 -dracut-config-rescue
@@ -65,9 +63,6 @@ sed -i 's/ rhgb quiet//' /etc/default/grub
 [ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
 echo "Enable lvm discards"
 sed -i 's/^\(\s\+\)issue_discards = 0/\1issue_discards = 1/' /etc/lvm/lvm.conf
-echo "remove big firmware package"
-dnf remove -y *-firmware
-dnf clean all
 # do not allow qemu guest agent rpc commands in production
 # enabling them here for dynamic libvirt inventory lab use
 # echo "allow qemu guest agent rpc commands"

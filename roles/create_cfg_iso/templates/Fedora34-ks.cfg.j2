@@ -25,7 +25,7 @@ cmdline
 {# accept eula #}
 eula --agreed
 {# reboot or poweroff after installation #}
-poweroff
+reboot
 {# System timezone #}
 timezone Europe/Amsterdam --utc --nontp
 {# Partition clearing information #}
@@ -58,9 +58,10 @@ kexec-tools
 %addon com_redhat_kdump --disable --reserve-mb='128'
 %end
 %post --erroronfail
-echo "remove big firmware package"
-dnf remove -y *-firmware
-dnf clean all
+echo "ensure boot is verbose"
+sed -i 's/ rhgb quiet//' /etc/default/grub
+[ -e /boot/grub2/grub.cgf ] && sed -i 's/ rhgb quiet//' /boot/grub2/grub.cgf
+[ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
 # do not allow qemu guest agent rpc commands in production
 # enabling them here for dynamic libvirt inventory lab use
 # echo "allow qemu guest agent rpc commands"

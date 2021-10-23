@@ -17,6 +17,14 @@ users:
 runcmd:
   - growpart /dev/sda 2
   - pvresize /dev/sda2
-  - lvextend -r -l +100%FREE /dev/rhel/root
+  - lvextend -r -l +100%FREE /dev/
+{%-     if guests[guest['key']]['guest_def']['dist'] == 'RedHat' -%}
+rhel
+{%-     elif guests[guest['key']]['guest_def']['dist'] == 'Rocky' -%}
+rl
+{%-     elif guests[guest['key']]['guest_def']['dist'] == 'Centos' -%}
+cl
+{%-     endif -%}
+  /root
 {%   endif %}
 {% endif %}

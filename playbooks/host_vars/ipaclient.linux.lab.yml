@@ -1,18 +1,27 @@
 ---
 network_connections:
   - name: eth0
-    state: up
     type: ethernet
     interface_name: eth0
+    autoconnect: true
     ip:
-      dhcp4: true
+      address:
+        - 192.168.100.3/24
+      dns:
+        - 192.168.100.2
+      dns_search:
+        - linux.lab
+      gateway4: 192.168.100.1
 
 guest_def:
   ansible_user: root
-  root_password: centosstream  # encrypt this with ansible-vault
+  root_password: rocky84  # encrypt this with ansible-vault
   root_pubkey: "{{ root_pubkey }}"
-  os_id: http://centos.org/centos-stream/8
-  dist: CentOS
+  host_groups:
+    - all
+    - ipaclients
+  os_id: http://rockylinux.org/rocky/8
+  dist: Rocky
   dist_major: 8
   dist_family: RedHat
   mem:
@@ -28,7 +37,7 @@ guest_def:
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        backing_image: backing_CentOS8_stream_sda.qcow2
+        backing_image: backing_Rocky8_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:
@@ -60,3 +69,4 @@ guest_def:
         # mac: 00:00:00
         # source_network is optional
         # source_network: default
+        source_network: network_01
