@@ -10,7 +10,7 @@
     - name: add guest to inventory
       add_host:
         hostname: "{{ guest['key'] }}"
-        groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default([]) }}"
+        groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default(['all']) }}"
         ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$','\\1'))[0]  }}"
   when:
     - guests[guest['key']]['network_connections'][0]['ip']['address'] is not defined
@@ -18,7 +18,7 @@
 - name: add guest to inventory
   add_host:
     hostname: "{{ guest['key'] }}"
-    groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default([]) }}"
+    groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default(['all']) }}"
     ansible_host: "{{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}"
   when:
     - guests[guest['key']]['network_connections'][0]['ip']['address'] is defined

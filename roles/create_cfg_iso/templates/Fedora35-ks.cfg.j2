@@ -1,14 +1,12 @@
 {# version=DEVEL #}
-{# Use Network installation media #}
+{# Use Network installation media #}{#
 url --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-35&arch=x86_64
 repo --name="updates" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f35&arch=x86_64
 repo --name="fedora-modular" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-modular-35&arch=x86_64
 repo --name="updates-modular" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-modular-f35&arch=x86_64
-{# local repos #}
-{% if local_repo_url is defined %}
-repo --name="local-fedora" --baseurl={{ local_repo_url }}/Fedora/linux/releases/35/Fedora/x86_64/os/ --cost=1
-repo --name="local-updates" --baseurl={{ local_repo_url }}/Fedora/linux/updates/35/x86_64/ --cost=1
-{% endif %}
+#}
+{# Use CDROM installation media #}
+cdrom
 {# Keyboard layouts #}
 keyboard --xlayouts='us'
 {# System language #}
@@ -18,6 +16,7 @@ network --bootproto=dhcp --device=eth0 --ipv6=auto --activate
 network --hostname=localhost.localdomain
 {# Root password #}
 rootpw --iscrypted {{ root_password | password_hash('sha512') }}
+sshkey --username=root '{{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}'
 {# Do NOT Run the Setup Agent on first boot #}
 firstboot --disable
 {# Do not ask for confirmation #}
@@ -25,9 +24,9 @@ cmdline
 {# accept eula #}
 eula --agreed
 {# reboot or poweroff after installation #}
-poweroff
+reboot
 {# System timezone #}
-timezone Europe/Amsterdam --utc --nontp
+timezone Europe/Amsterdam --utc
 {# Partition clearing information #}
 ignoredisk --only-use=sda
 clearpart --none --initlabel
@@ -35,26 +34,41 @@ clearpart --none --initlabel
 {# to reduce image size no swap #}
 {# to simplefy the image only a /boot and / partition #}
 autopart --type=btrfs
+{#
+part /boot --fstype="xfs" --ondisk=sda --size=1024
+part btrfs.50 --fstype="btrfs" --ondisk=sda --size=2048
+btrfs none --label=fedora_fedora35 btrfs.50
+btrfs / --subvol --name=root LABEL=fedora_fedora35
+#}
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# services #}
-services --enabled=cloud-init,cloud-init-local,cloud-final,cloud-config
+{#services --enabled=cloud-init,cloud-init-local,cloud-final,cloud-config#}
 {# package selection #}
-%packages --excludedocs
+{#%packages --excludedocs
 @^cloud-server-environment
+%end#}
+
+%packages
+@core
+kernel-core
+qemu-guest-agent
+-dracut-config-rescue
+-firewalld
+-geolite2-city
+-geolite2-country
+-kernel
+-plymount
+-zram-generator-defaults
+kexec-tools
+
 %end
-%addon com_redhat_kdump --disable --reserve-mb='128'
-%end
+
 %post --erroronfail
 echo "ensure boot is verbose"
 sed -i 's/ rhgb quiet//' /etc/default/grub
 [ -e /boot/grub2/grub.cgf ] && sed -i 's/ rhgb quiet//' /boot/grub2/grub.cgf
 [ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
-echo "remove big firmware package"
-dnf remove -y *-firmware
-dnf clean all
-echo "workaround for cloud-init selinux fubar"
-touch /.autorelabel
 # do not allow qemu guest agent rpc commands in production
 # enabling them here for dynamic libvirt inventory lab use
 # echo "allow qemu guest agent rpc commands"

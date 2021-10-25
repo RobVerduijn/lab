@@ -14,8 +14,8 @@ iso:
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-netinst-x86_64-34-1.2.iso
     pool: default
   Fedora35:
-    name: Fedora-Server-netinst-x86_64-35_Beta-1.2.iso
-    url: https://download.fedoraproject.org/pub/fedora/linux/releases/test/35_Beta/Server/x86_64/iso/Fedora-Server-netinst-x86_64-35_Beta-1.2.iso
+    name: Fedora-Server-dvd-x86_64-35-20211021.n.0.iso
+    url: http://fedora.mirror.liteserver.nl/linux/development/35/Server/x86_64/iso/Fedora-Server-dvd-x86_64-35-20211021.n.0.iso
     pool: default
   Rocky8:
     name: Rocky-8.4-x86_64-dvd1.iso

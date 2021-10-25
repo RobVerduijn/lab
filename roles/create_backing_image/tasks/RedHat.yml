@@ -1,5 +1,8 @@
 ---
 - block:
+  - name: wait for guest to fully start
+    wait_for_connection:
+
   - name: gather facts
     setup:
 
@@ -52,7 +55,7 @@
   - name: ensure cloud-init services are enabled
     systemd:
       name: "{{ service }}"
-      enable: true
+      enabled: true
     loop:
       - cloud-init
       - cloud-init-local
