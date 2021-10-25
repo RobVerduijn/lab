@@ -63,9 +63,9 @@
 
     - name: Add the user student
       ansible.builtin.user:
-        name: student
+        name: "{{ user }}"
         groups: wheel
-        password: student
+        password: "{{ user_password | password_hash('sha512') }}"
         append: yes
 
     - name: include roles

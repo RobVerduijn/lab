@@ -35,12 +35,12 @@ Now run the setup_ansible_controller playbook to setup your controller.<br>
 cd $HOME/code/playbooks
 ansible-playbook setup_ansible_controller.yml
 ```
-Check to see if the images are correct and the download urls are pointing to fast mirrors.
+Check to see if the images are correct and the download urls are pointing to fast mirrors.<br>
+And if the pools are pointing to the correct storage pools.<br>
 ```
 cd $HOME/code/playbooks
 cat group_vars/iso.yml
 ```
-And if the pools are pointing to the correct storage pools.<br>
 Run the download_iso playbook to download the images (which takes a very long time).<br>
 ```
 cd $HOME/code/playbooks
@@ -53,7 +53,7 @@ cd $HOME/code/playbooks
 ansible-playbook create_centos8_image.yml
 ansible-playbook create_centos8stream_image.yml
 ansible-playbook create_rocky8_image.yml
-ansible-playbook create_fedora34_image.yml
+ansible-playbook create_fedora35_image.yml
 ```
 
 See the following readmes for details

@@ -7,6 +7,9 @@ network_connections:
     ip:
       dhcp4: true
 
+user: student
+user_password: student
+
 guest_def:
   ansible_user: root
   root_password: fedora35  # encrypt this with ansible-vault
