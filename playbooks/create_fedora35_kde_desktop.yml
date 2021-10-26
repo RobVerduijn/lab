@@ -1,11 +1,11 @@
 ---
-- name: create desktop.linux.lab guest
+- name: create kde.linux.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
     vms:
-      - desktop.linux.lab
+      - kde.linux.lab
 
   tasks:
     - name: include set vm vars
