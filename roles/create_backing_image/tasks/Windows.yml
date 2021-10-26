@@ -2,6 +2,7 @@
 - block:
     - name: wait for connection
       wait_for_connection:
+        timeout: 3600
 
     - name: check if windows update service is done starting
       ansible.builtin.win_shell: (Get-Service -name wuauserv).status

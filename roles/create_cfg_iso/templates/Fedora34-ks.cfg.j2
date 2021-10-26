@@ -1,14 +1,6 @@
 {# version=DEVEL #}
-{# Use Network installation media #}
-url --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-34&arch=x86_64
-repo --name="updates" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-f34&arch=x86_64
-repo --name="fedora-modular" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=fedora-modular-34&arch=x86_64
-repo --name="updates-modular" --mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=updates-released-modular-f34&arch=x86_64
-{# local repos #}
-{% if local_repo_url is defined %}
-repo --name="local-fedora" --baseurl={{ local_repo_url }}/Fedora/linux/releases/34/Fedora/x86_64/os/ --cost=1
-repo --name="local-updates" --baseurl={{ local_repo_url }}/Fedora/linux/updates/34/x86_64/ --cost=1
-{% endif %}
+{# Use CDROM installation media #}
+cdrom
 {# Keyboard layouts #}
 keyboard --xlayouts='us'
 {# System language #}
@@ -18,6 +10,7 @@ network --bootproto=dhcp --device=eth0 --ipv6=auto --activate
 network --hostname=localhost.localdomain
 {# Root password #}
 rootpw --iscrypted {{ root_password | password_hash('sha512') }}
+sshkey --username=root '{{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}'
 {# Do NOT Run the Setup Agent on first boot #}
 firstboot --disable
 {# Do not ask for confirmation #}

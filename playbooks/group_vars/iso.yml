@@ -10,8 +10,8 @@ iso:
     url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
     pool: default
   Fedora34:
-    name: Fedora-Server-netinst-x86_64-34-1.2.iso
-    url: https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-netinst-x86_64-34-1.2.iso
+    name: Fedora-Server-dvd-x86_64-34-1.2.iso
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/34/Server/x86_64/iso/Fedora-Server-dvd-x86_64-34-1.2.iso
     pool: default
   Fedora35:
     name: Fedora-Server-dvd-x86_64-35-20211021.n.0.iso
