@@ -1,5 +1,5 @@
 ---
-- name: create centos8.linux.lab guest
+- name: create desktop.linux.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
@@ -49,6 +49,21 @@
     
     - name: gather facts
       setup:
+
+    # an 'environment group' is not the same as a group
+    # it contains quite a lot more packages
+    # available desktop environments groups in fedora35:
+    #   basic-desktop-environment
+    #   cinnamon-desktop-environment
+    #   deepin-desktop-environment
+    #   i3-desktop-environment
+    #   kde-desktop-environment
+    #   lxde-desktop-environment
+    #   lxqt-desktop-environment
+    #   mate-desktop-environment
+    #   sugar-desktop-environment
+    #   workstation-product-environment
+    #   xfce-desktop-environment
 
     - name: ensure workstation desktop environment is present
       package:
