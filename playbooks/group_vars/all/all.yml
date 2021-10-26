@@ -6,13 +6,15 @@ root_pubkey: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
 ipa_domain: linux.lab
 ipa_realm: "{{ ipa_domain | upper }}"
 
-root_password: linuxlab  # encrypt this in production
-administrator: Admin
-administrator_password: windowslab  # encrypt this in production
 # I suggest you keep the stuff below in the file group_vars/all/secrets.yml
+
 # which will be included because it is in the group_vars/all folder
 # don't forget to add it to your .gitignore
 #
 # redhat_login: my_redhat_login
 # redhat_password: my_redhat_password
 # pool_id: my_pool_id
+
+root_password: linuxlab  # encrypt this in production
+administrator: Admin
+administrator_password: windowslab  # encrypt this in production
