@@ -47,16 +47,19 @@ cd $HOME/code/playbooks
 ansible-playbook download_iso.yml
 ```
 Then run the create_distro_image plays to create the backing images.<br>
-which will become a bit over 300Mb in size.<br>
+which will become about 350Mb-450Mb in size.<br>
 ```
 cd $HOME/code/playbooks
 ansible-playbook create_centos8_image.yml
 ansible-playbook create_centos8stream_image.yml
 ansible-playbook create_rocky8_image.yml
+ansible-playbook create_fedora34_image.yml
 ansible-playbook create_fedora35_image.yml
 ```
 
 See the following readmes for details
 * [Katello lab ](README_katello.md)
 * [FreeIPA lab ](README_freeipa.md)
-* [Installation Media](README_installation_media.md)
+* [Rocky, Centos and Fedora Media](README_rocky_centos_fedora_media.md)
+* [RHEL Media](README_rhel_media.md)
+* [Windows Media](README_windows_media.md) (Read it before trying it)

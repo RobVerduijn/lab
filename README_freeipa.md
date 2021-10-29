@@ -20,7 +20,6 @@ FreeIPA-Domain: linux.lab
 
 FreeIPA-Realm: LINUX.LAB
 
-
 When your browser gives you a hard time due to the ssl errors.<br>
 Find the server ca cert at the following location.<br>
 ```
