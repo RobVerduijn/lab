@@ -34,8 +34,6 @@ bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifna
 services --enabled=cloud-init,cloud-init-local,cloud-final,cloud-config
 {# package selection #}
 %packages --excludedocs
-#@^minimal-environment
-@cloud-server
 @core
 kernel-core
 qemu-guest-agent

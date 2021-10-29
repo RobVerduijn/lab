@@ -28,22 +28,12 @@ clearpart --none --initlabel
 {# to reduce image size no swap #}
 {# to simplefy the image only a /boot and / partition #}
 autopart --type=btrfs
-{#
-part /boot --fstype="xfs" --ondisk=sda --size=1024
-part btrfs.50 --fstype="btrfs" --ondisk=sda --size=2048
-btrfs none --label=fedora_fedora35 btrfs.50
-btrfs / --subvol --name=root LABEL=fedora_fedora35
-#}
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# services #}
 {#services --enabled=cloud-init,cloud-init-local,cloud-final,cloud-config#}
 {# package selection #}
-{#%packages --excludedocs
-@^cloud-server-environment
-%end#}
-
-%packages
+%packages --excludedocs
 @core
 kernel-core
 qemu-guest-agent
