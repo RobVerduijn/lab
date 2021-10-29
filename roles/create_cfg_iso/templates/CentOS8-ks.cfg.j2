@@ -12,6 +12,7 @@ network --bootproto=dhcp --device=eth0 --ipv6=auto --activate
 network --hostname=localhost.localdomain
 {# Root password #}
 rootpw --iscrypted {{ root_password | password_hash('sha512') }}
+sshkey --username=root '{{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}'a
 {# Do NOT Run the Setup Agent on first boot #}
 firstboot --disable
 {# Do not ask for confirmation #}
