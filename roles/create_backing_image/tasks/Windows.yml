@@ -1,4 +1,10 @@
 ---
+# this task has a tends to fail when doing this in windows
+- name: download cloudbase_init
+  get_url:
+    url: "{{ cloudbase_url }}"
+    dest: /tmp/CloudbaseInitSetup_x64.msi
+
 - block:
     - name: wait for connection
       wait_for_connection:
@@ -68,10 +74,9 @@
             arguments: /passive
       when: guests[guest['key']]['guest_def']['dist_major'] == 10
 
-    - name: download cloudbase_init
-      ansible.windows.win_get_url:
-        url: "{{ cloudbase_url }}"
-        follow_redirects: all
+    - name: copy cloudbase_init to temp
+      ansible.windows.win_copy:
+        src: /tmp/CloudbaseInitSetup_x64.msi
         dest: C:\Windows\Temp\CloudbaseInitSetup_x64.msi
 
     - name: install cloudbase_init
