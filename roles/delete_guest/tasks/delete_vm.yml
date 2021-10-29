@@ -14,10 +14,28 @@
     - guest['key'] in current_vms.list_vms
     - vm_status['status'] != 'shutdown'
 
-- name: undefine old vm
-  community.libvirt.virt:
-    command: undefine
-    name: "{{ guest['key'] }}"
+- name: test if nvram exists
+  stat:
+    path: /var/lib/libvirt/qemu/nvram/{{ guest['key'] }}_VARS.fd
+    get_checksum: false
+    get_attributes: false
+    get_mime: false
+  register: nvram_file
+  changed_when: false
+
+
+- name: add file to files list
+  set_fact:
+    files: "{{ [ '/var/lib/libvirt/qemu/nvram/' + guest['key'] + '_VARS.fd' ] }}"      
+  when: nvram_file['stat']['exists']
+
+- block:
+    - name: undefine old vm
+      set_fact:
+        virsh_cmd: virsh undefine --nvram {{ guest['key'] }}
+    
+    - name: undefine old vm
+      command: "{{ virsh_cmd }}"
   when: guest['key'] in current_vms.list_vms
 
 - name: create files list

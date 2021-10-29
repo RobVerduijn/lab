@@ -29,7 +29,15 @@ iso:
     name: Win10_21H1_English_x64.iso
     url: manual download
     pool: default
+  Windows11:
+    name: Win11_English_x64.iso
+    url: manual download
+    pool: default
   virtio:
     name: virtio-win.iso
     url: manual download
+    pool: default
+  virtio_0_1_208:
+    name: virtio-win-0.1.208.iso
+    url: https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/archive-virtio/virtio-win-0.1.208-1/virtio-win-0.1.208.iso
     pool: default

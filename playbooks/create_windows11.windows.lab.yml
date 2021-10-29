@@ -1,11 +1,11 @@
 ---
-- name: create windows10.windows.lab guest
+- name: create windows11.windows.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
     vms:
-      - windows10.windows.lab
+      - windows11.windows.lab
   tasks:
     - name: include set vm vars
       include_role:
@@ -38,7 +38,7 @@
         loop_var: guest
 
 - name: set windows admin account
-  hosts: windows10.windows.lab
+  hosts: windows11.windows.lab
   gather_facts: false
   remote_user: Admin
   connection: winrm
@@ -51,7 +51,7 @@
     - name: wait for {{ inventory_hostname }} to fully start
       wait_for_connection:
     
-    - name: reset Admin password
+    - name: set administrator account and password
       ansible.windows.win_user:
         name: "{{ administrator }}"
         password: "{{ administrator_password }}"
@@ -62,7 +62,7 @@
         groups_action: add
 
 - name: configure windows
-  hosts: windows10.windows.lab
+  hosts: windows11.windows.lab
   gather_facts: false
   remote_user: "{{ administrator }}"
   connection: winrm

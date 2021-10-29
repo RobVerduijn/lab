@@ -1,5 +1,15 @@
 ---
+- name: set template name
+  set_fact:
+    my_template: "{{ guests[guest['key']]['guest_def']['dist_family'] }}.xml.j2"
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'RedHat'
+
+- name: set template name
+  set_fact:
+    my_template: "{{ guests[guest['key']]['guest_def']['dist_family'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}.xml.j2"
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'Windows'
+
 - name: create kvm guest
   community.libvirt.virt:
     command: define
-    xml: "{{ lookup('template', guests[guest['key']]['guest_def']['dist_family'] + '.xml.j2') }}"
+    xml: "{{ lookup('template', my_template) }}"

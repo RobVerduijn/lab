@@ -3,7 +3,7 @@
     - name: wait for connection
       wait_for_connection:
         timeout: 3600
-
+      
     - name: check if windows update service is done starting
       ansible.builtin.win_shell: (Get-Service -name wuauserv).status
       register: state_services
@@ -44,37 +44,39 @@
         state: started
         start_mode: delayed
 
-    - name: add redhat as trusted publisher
-      ansible.windows.win_shell: |
-        $BasePath = "C:\Windows\Temp\Install"
-        New-item $BasePath -itemtype directory
-        $CertName = "balloon.cer"
-        $ExportCert = Join-Path $BasePath -ChildPath $CertName
-        $Cert = (Get-AuthenticodeSignature "F:\Balloon\w10\amd64\balloon.sys").SignerCertificate
-        $ExportType = [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert
-        [System.IO.File]::WriteAllBytes($ExportCert, $Cert.Export($ExportType))
-        Import-Certificate -FilePath $ExportCert -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
+    - block:
+        - name: add redhat as trusted publisher
+          ansible.windows.win_shell: |
+            $BasePath = "C:\Windows\Temp"
+            $CertName = "balloon.cer"
+            $ExportCert = Join-Path $BasePath -ChildPath $CertName
+            $Cert = (Get-AuthenticodeSignature "F:\Balloon\w10\amd64\balloon.sys").SignerCertificate
+            $ExportType = [System.Security.Cryptography.X509Certificates.X509ContentType]::Cert
+            [System.IO.File]::WriteAllBytes($ExportCert, $Cert.Export($ExportType))
+            Import-Certificate -FilePath $ExportCert -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
 
-    - name: install virtio win guest tools (Drivers)
-      ansible.windows.win_package:
-        path: F:\virtio-win-gt-x64.msi
-        state: present
-        arguments: /passive
+        - name: install virtio win guest tools (Drivers)
+          ansible.windows.win_package:
+            path: F:\virtio-win-gt-x64.msi
+            state: present
+            arguments: /passive
 
-    - name: install virtio win guest agent
-      ansible.windows.win_package:
-        path: F:\guest-agent\qemu-ga-x86_64.msi
-        state: present
-        arguments: /passive
+        - name: install virtio win guest agent
+          ansible.windows.win_package:
+            path: F:\guest-agent\qemu-ga-x86_64.msi
+            state: present
+            arguments: /passive
+      when: guests[guest['key']]['guest_def']['dist_major'] == 10
 
     - name: download cloudbase_init
       ansible.windows.win_get_url:
         url: "{{ cloudbase_url }}"
-        dest: C:\Windows\Temp\Install\CloudbaseInitSetup_x64.msi
+        follow_redirects: all
+        dest: C:\Windows\Temp\CloudbaseInitSetup_x64.msi
 
     - name: install cloudbase_init
       ansible.windows.win_package:
-        path: C:\Windows\Temp\Install\CloudbaseInitSetup_x64.msi
+        path: C:\Windows\Temp\CloudbaseInitSetup_x64.msi
         state: present
 
     - name: copy config files
@@ -113,6 +115,7 @@
       ansible.windows.win_get_url:
         url: "https://download.sysinternals.com/files/SDelete.zip"
         dest: C:\SDelete.zip
+        follow_redirects: all
 
     - name: unzip SDelete
       community.windows.win_unzip:
@@ -132,6 +135,11 @@
         loop_var: file
       ignore_errors: true
 
+    - name: workaround for packages that are not systemwide installed
+      ansible.windows.win_shell: |
+        Remove-AppxPackage -Package (Get-AppxPackage Microsoft.OneDriveSync) -AllUsers
+        Remove-AppxPackage -Package (Get-AppxPackage MicrosoftWindows.Client.WebExperience) -AllUsers
+ 
     - name: zero filesystem
       ansible.windows.win_command: 'C:\sdelete64.exe -accepteula -nobanner -z C:'
 

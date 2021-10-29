@@ -1,5 +1,5 @@
 ---
-- name: create centos8.linux.lab guest
+- name: delete linux.lab guests
   hosts: buildhost
   gather_facts: true
   remote_user: root
@@ -7,8 +7,11 @@
     vms:
       - centos8.linux.lab
       - centos8stream.linux.lab
+      - kde.linux.lab
+      - lxde.linux.lab
       - rocky8.linux.lab
       - fedora34.linux.lab
+      - fedora35.linux.lab
 
   tasks:
     - name: include set vm vars
