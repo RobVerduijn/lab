@@ -30,8 +30,6 @@ clearpart --none --initlabel
 autopart --type=btrfs
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
-{# services #}
-services --enabled=cloud-init,cloud-init-local,cloud-final,cloud-config
 {# package selection #}
 %packages --excludedocs
 @core
