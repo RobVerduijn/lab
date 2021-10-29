@@ -144,7 +144,8 @@
       ansible.windows.win_shell: |
         Remove-AppxPackage -Package (Get-AppxPackage Microsoft.OneDriveSync) -AllUsers
         Remove-AppxPackage -Package (Get-AppxPackage MicrosoftWindows.Client.WebExperience) -AllUsers
- 
+      when: guests[guest['key']]['guest_def']['dist_major'] == 11
+
     - name: zero filesystem
       ansible.windows.win_command: 'C:\sdelete64.exe -accepteula -nobanner -z C:'
 
