@@ -15,7 +15,7 @@
       when: guests[guest['key']]['guest_def']['dist'] == 'RedHat'
 
     - name: update packages
-      command: dnf update -y --setopt=install_weak_deps=False --nodocs
+      command: dnf update -y --setopt=install_weak_deps=False --nodocs --exclude='*firmware'
       register: update_all
       changed_when: "'Upgraded:' in update_all['stdout']"
 
@@ -28,6 +28,11 @@
     - name: include conditional reboot
       include_role:
         name: RobVerduijn.lab.conditional_reboot
+
+    - name: delete dangling packages
+      command: dnf autoremove -y
+      register: packages_removed
+      changed_when: "'Removed:' in packages_removed['stdout']"
 
     - name: find old kernels
       command: dnf repoquery --installonly --latest-limit=-2 -q
