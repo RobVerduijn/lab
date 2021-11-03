@@ -5,10 +5,14 @@
     name: vm
   when: os_image is not defined
 
-- name: load {{ guest }} vars
+- name: show first existing file or ignore if none do
   include_vars:
-    file: vars/{{ guest }}.yml
+    file: "{{ lookup('first_found', files, errors='ignore') }}"
     name: vm
+  vars:
+    files:
+      - host_vars/{{ guest }}.yml
+      - vars/{{ guest }}.yml
   when: os_image is defined
 
 - name: combine vm vars with guests
