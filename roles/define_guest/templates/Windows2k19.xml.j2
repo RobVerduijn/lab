@@ -1,0 +1,111 @@
+<domain type='kvm'>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://microsoft.com/win/2k19"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory unit="{{ guests[guest['key']]['guest_def']['mem']['unit'] }}">{{ guests[guest['key']]['guest_def']['mem']['size'] }}</memory>
+  <currentMemory unit="{{ guests[guest['key']]['guest_def']['mem']['unit'] }}">{{ guests[guest['key']]['guest_def']['mem']['size'] }}</currentMemory>
+  <vcpu placement="static">{{ guests[guest['key']]['guest_def']['vcpu'] }}</vcpu>
+  <name>{{ guest['key'] }}</name>
+  <os>
+    <type arch='x86_64' machine='{{ kvm_machine }}'>hvm</type>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv>
+      <relaxed state='on'/>
+      <vapic state='on'/>
+      <spinlocks state='on' retries='8191'/>
+    </hyperv>
+    <vmport state='off'/>
+  </features>
+  <cpu mode="host-model" check="partial">
+    <model fallback="allow"/>
+  </cpu>
+  <clock offset='localtime'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+    <timer name='hypervclock' present='yes'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+  {% set boot = {} %}
+  {% set _ = boot.update({ 'order': 1 }) %}
+  {% for dev in guests[guest['key']]['guest_def']['devices']['storage'] %}
+    {% set pool = guests[guest['key']]['guest_def']['devices']['storage'][dev]['pool'] %}
+    {% set pool_path = ansible_libvirt_pools[pool]['path'] %}
+    {% set image = guests[guest['key']]['guest_def']['devices']['storage'][dev]['image']%}
+    {% if guests[guest['key']]['guest_def']['devices']['storage'][dev]['type'] == 'disk' %}
+      {% set device = 'disk' %}
+      {% set type = 'qcow2' %}
+      {% set bus = 'scsi' %}
+    {% elif guests[guest['key']]['guest_def']['devices']['storage'][dev]['type'] == 'cdrom'%}
+      {% set device = 'cdrom' %}
+      {% set type = 'raw' %}
+      {% set bus = 'sata' %}
+    {% endif %}
+    <disk type="file" device="{{ device }}">
+      <driver name="qemu" type="{{ type }}"{% if device == 'disk' %} discard="unmap"{% endif %}/>
+      <source file="{{ pool_path }}/{{ image }}"/>
+      <target dev="{{ dev }}" bus="{{ bus }}"/>
+      {% if guests[guest['key']]['guest_def']['devices']['storage'][dev]['bootable'] %}
+      <boot order="{{ boot['order'] }}"/>
+        {% set _ = boot.update({ 'order': boot['order'] + 1 }) %}
+      {% endif %}
+    </disk>  
+  {% endfor %}
+  {% for net_dev in guests[guest['key']]['guest_def']['devices']['network'] %}
+    <interface type="network">
+      <mac address="{{ mac | default('52:54:00' | random_mac)}}"/>
+      <source network="{{ guests[guest['key']]['guest_def']['devices']['network'][net_dev]['source_network'] }}"/>
+      <model type="virtio"/>
+    </interface>
+  {% endfor %}
+    <controller type='scsi' index='0' model='virtio-scsi'>
+    </controller>
+    <controller type='virtio-serial' index='0'>
+    </controller>
+    <serial type='pty'>
+      <target type='isa-serial' port='0'>
+        <model name='isa-serial'/>
+      </target>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0' state='disconnected'/>
+    </channel>
+    <input type='tablet' bus='usb'>
+    </input>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='spice' autoport='yes' listen='0.0.0.0'>
+      <listen type='address' address='0.0.0.0'/>
+      <image compression='off'/>
+    </graphics>
+    <sound model='ich9'>
+    </sound>
+    <video>
+      <model type='qxl' ram='65536' vram='65536' vgamem='16384' heads='1' primary='yes'/>
+    </video>
+    <redirdev bus='usb' type='spicevmc'>
+    </redirdev>
+    <redirdev bus='usb' type='spicevmc'>
+    </redirdev>
+    <memballoon model='virtio'>
+    </memballoon>
+    <rng model='virtio'>
+      <backend model='random'>/dev/urandom</backend>
+    </rng>
+  </devices>
+</domain>
