@@ -69,7 +69,10 @@
         - cloud-config
       loop_control:
         loop_var: service
-      when: ansible_distribution == 'Fedora'
+      when: >
+        ( ansible_distribution == 'Fedora' )
+        or
+        ( ansible_distribution_major_version | int > 8 )
 
   delegate_to: "{{ os_image }}"
   vars:
@@ -80,3 +83,25 @@
   community.libvirt.virt:
     command: shutdown
     name: "{{ os_image }}"
+
+- name: ensure the vm is really stopped
+  command: virsh list
+  register: virsh_list_res
+  until: os_image not in virsh_list_res.stdout
+  retries: 360
+  delay: 10
+  changed_when: false
+
+- name: sysprep the {{ os_image }} image
+  command: >-
+    virt-sysprep -d {{ os_image }}
+    --delete '/etc/yum.repos.d/local.repo'
+    --delete '/etc/sysconfig/network-scripts/*'
+    --delete '/etc/NetworkManager/system-connections/*'
+    --delete '/var/lib/systemd/random-seed'
+    --truncate '/etc/machine-id'
+    --truncate '/etc/resolv.conf'
+    --hostname localhost.localdomain
+    --selinux-relabel
+  tags:
+    - skip_ansible_lint

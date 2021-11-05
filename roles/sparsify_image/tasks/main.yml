@@ -13,27 +13,6 @@
     image_pool_path: "{{ ansible_libvirt_pools[image_pool]['path'] }}"
     backing_image_pool_path: "{{ ansible_libvirt_pools[backing_image_pool]['path'] }}"
 
-- name: ensure the vm is really stopped
-  command: virsh list
-  register: virsh_list_res
-  until: os_image not in virsh_list_res.stdout
-  retries: 360
-  delay: 10
-  changed_when: false
-
-- name: sysprep the {{ os_image }} image
-  command: >-
-    virt-sysprep -d {{ os_image }}
-    --delete '/etc/yum.repos.d/local.repo'
-    --delete '/etc/sysconfig/network-scripts/*'
-    --delete '/etc/NetworkManager/system-connections/*'
-    --delete '/var/lib/systemd/random-seed'
-    --hostname localhost.localdomain
-    --selinux-relabel
-  tags:
-    - skip_ansible_lint
-  when: dist_family == "RedHat"
-
 - name: sparsify image
   command: >-
     /usr/bin/virt-sparsify {{ image_pool_path }}/{{ image }}

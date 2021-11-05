@@ -5,6 +5,10 @@ iso:
     name: CentOS-Stream-8-x86_64-latest-dvd1.iso
     url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8-stream/isos/x86_64/CentOS-Stream-8-x86_64-latest-dvd1.iso
     pool: default
+  CentOS9stream:
+    name: CentOS-Stream-9-latest-x86_64-dvd1.iso
+    url: https://mirrors.centos.org/mirrorlist?path=/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso&redirect=1&protocol=https
+    pool: default
   CentOS8:
     name: CentOS-8.4.2105-x86_64-dvd1.iso
     url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
@@ -31,6 +35,10 @@ iso:
     pool: default
   Windows11:
     name: Win11_English_x64.iso
+    url: manual download
+    pool: default
+  Windows2k19:
+    name: SW_DVD9_Win_Server_STD_CORE_2019_64Bit_English_DC_STD_MLF_X21-91656.ISO
     url: manual download
     pool: default
   virtio:

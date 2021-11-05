@@ -34,7 +34,7 @@
     guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'type': 'cdrom', 'method': 'keep' }}}}}}, recursive=True) }}"
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['type'] is not defined
-    - guests[guest]['guest_def']['devices']['storage'][dev]['image'] | regex_search('.*iso$')
+    - guests[guest]['guest_def']['devices']['storage'][dev]['image'] | regex_search('.*iso$', ignorecase=True)
 
 - name: set type to disk
   set_fact:

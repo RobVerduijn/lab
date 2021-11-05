@@ -1,8 +1,8 @@
-{# version=EL8 #}
+{# version=EL9 #}
 {# repo information #}
 {# Use CDROM installation media #}
 cdrom
-repo --name="AppStream" --baseurl=file:///runinstall/sources/mount-0000-cdrom/AppStream
+repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
 {# Keyboard layouts #}
 keyboard --vckeymap=us --xlayouts='us'
 {# System language #}
@@ -10,6 +10,8 @@ lang en_US.UTF-8
 {# Network information #}
 network --bootproto=dhcp --device=eth0 --ipv6=auto --activate
 network --hostname=localhost.localdomain
+{# system auth information #}
+auth --enableshadow --passalgo=sha512
 {# Root password #}
 rootpw --iscrypted {{ root_password | password_hash('sha512') }}
 sshkey --username=root '{{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}'a
@@ -21,8 +23,10 @@ cmdline
 eula --agreed
 {# reboot or poweroff after installation #}
 reboot
+{# selinux #}
+selinux --enforcing
 {# System services #}
-services --disabled="kdump" --enabled="NetworkManager,sshd,chronyd,rngd"
+services --disabled="kdump,rhsmcertd" --enabled="sshd,NetworkManager"
 {# System timezone #}
 timezone Europe/Amsterdam --isUtc
 {# Partition clearing information #}
@@ -31,8 +35,9 @@ clearpart --all --initlabel
 zerombr
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
-{# to simplefy the image only a /boot and / partition #}
-autopart --noswap
+{# to simplefy the image only a / partition #}
+autopart --noswap --noboot --type=plain
+#part / --fstype="xfs" --ondisk=sda --size=3071
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}
@@ -63,8 +68,8 @@ echo "Enable verbose booting"
 sed -i 's/ rhgb quiet//' /etc/default/grub
 [ -e /boot/grub2/grub.cfg ] && sed -i 's/ rhgb quiet//' /boot/grub2/grub.cfg
 [ -e /boot/grub2/grubenv ] && sed -i 's/ rhgb quiet//' /boot/grub2/grubenv
-echo "Enable lvm discards"
-sed -i 's/^\(\s\+\)issue_discards = 0/\1issue_discards = 1/' /etc/lvm/lvm.conf
+# echo "Enable lvm discards"
+# sed -i 's/^\(\s\+\)issue_discards = 0/\1issue_discards = 1/' /etc/lvm/lvm.conf
 # do not allow qemu guest agent rpc commands in production
 # enabling them here for dynamic libvirt inventory lab use
 # echo "allow qemu guest agent rpc commands"

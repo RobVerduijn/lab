@@ -5,7 +5,7 @@
     name: vm
   when: os_image is not defined
 
-- name: show first existing file or ignore if none do
+- name: load {{ guest }} vars files
   include_vars:
     file: "{{ lookup('first_found', files, errors='ignore') }}"
     name: vm

@@ -4,6 +4,11 @@
   get_url:
     url: "{{ cloudbase_url }}"
     dest: /tmp/CloudbaseInitSetup_x64.msi
+  
+- name: download SDelete
+  get_url:
+    url: "https://download.sysinternals.com/files/SDelete.zip"
+    dest: /tmp/SDelete.zip
 
 - block:
     - name: wait for connection
@@ -116,11 +121,10 @@
         loop_var: file
       ignore_errors: true
 
-    - name: download SDelete
-      ansible.windows.win_get_url:
-        url: "https://download.sysinternals.com/files/SDelete.zip"
+    - name: copy sdelete to C:\
+      ansible.windows.win_copy:
+        src: /tmp/SDelete.zip
         dest: C:\SDelete.zip
-        follow_redirects: all
 
     - name: unzip SDelete
       community.windows.win_unzip:

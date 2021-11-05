@@ -1,0 +1,20 @@
+---
+- name: create centos9stream backing image
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+  vars:
+    os_image: CentOS9stream
+
+  tasks:
+    - name: include set vm vars
+      include_role:
+        name: RobVerduijn.lab.set_vm_vars
+
+    - name: create backing image
+      include_role:
+        name: RobVerduijn.lab.create_backing_image
+
+    - name: delete {{ os_image }}
+      include_role:
+        name: RobVerduijn.lab.delete_guest

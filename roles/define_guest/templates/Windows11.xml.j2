@@ -50,7 +50,7 @@
       {% set bus = 'sata' %}
     {% endif %}
     <disk type="file" device="{{ device }}">
-      <driver name="qemu" type="{{ type }}"{% if device == 'disk' %} discard="unmap"{% endif %}/>
+      <driver name="qemu" type="{{ type }}"{% if device == 'disk' %} discard="unmap" detect_zeroes='unmap'{% endif %}/>
       <source file="{{ pool_path }}/{{ image }}"/>
       <target dev="{{ dev }}" bus="{{ bus }}"/>
       {% if guests[guest['key']]['guest_def']['devices']['storage'][dev]['bootable'] %}

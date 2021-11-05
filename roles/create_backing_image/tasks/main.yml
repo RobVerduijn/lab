@@ -44,4 +44,4 @@
 
 - name: sysprep image
   include_role:
-    name: RobVerduijn.lab.sysprep_image
+    name: RobVerduijn.lab.sparsify_image

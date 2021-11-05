@@ -12,7 +12,7 @@ users:
     ssh_authorized_keys:
       - {{ guests[guest['key']]['guest_def']['root_pubkey'] | default(root_pubkey) }}
 
-{%   if guests[guest['key']]['guest_def']['dist'] in ['Rocky','RedHat','CentOS'] %}
+{%   if guests[guest['key']]['guest_def']['dist'] in ['Rocky','RedHat','CentOS'] and guests[guest['key']]['guest_def']['dist_major'] < 9 %}
 {# workaround for cloud-utils-growpart does not support lvm #}
 runcmd:
   - growpart /dev/sda 2
@@ -22,6 +22,8 @@ runcmd:
 rhel
 {%-     elif guests[guest['key']]['guest_def']['dist'] == 'Rocky' -%}
 rl
+{%-     elif 'stream' in guests[guest['key']]['guest_def']['os_id'] -%}
+cs
 {%-     elif guests[guest['key']]['guest_def']['dist'] == 'CentOS' -%}
 cl
 {%-     endif -%}

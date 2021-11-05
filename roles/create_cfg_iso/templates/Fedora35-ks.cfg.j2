@@ -2,7 +2,7 @@
 {# Use CDROM installation media #}
 cdrom
 {# Keyboard layouts #}
-keyboard --xlayouts='us'
+keyboard --vckeymap=us --xlayouts='us'
 {# System language #}
 lang en_US.UTF-8
 {# Network information #}
@@ -21,17 +21,23 @@ eula --agreed
 reboot
 {# System timezone #}
 timezone Europe/Amsterdam --utc
+{# disable firewall #}
+firewall --disabled
+{# selinux #}
+selinux --enforcing
+{# services #}
+services --enabled="sshd"
 {# Partition clearing information #}
 ignoredisk --only-use=sda
-clearpart --none --initlabel
+clearpart --all --initlabel --disklabel=gpt
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
 {# to simplefy the image only a /boot and / partition #}
-autopart --type=btrfs
+autopart --type=btrfs --noswap --noboot
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}
-%packages --excludedocs --exclude-weakdeps
+%packages --excludedocs --exclude-weakdeps --inst-langs=en
 @core
 kernel-core
 qemu-guest-agent
@@ -42,7 +48,6 @@ qemu-guest-agent
 -kernel
 -plymount
 -zram-generator-defaults
-kexec-tools
 
 %end
 
