@@ -20,7 +20,7 @@ guest_def:
   dist_family: RedHat
   mem:
     unit: MiB
-    size: 4192
+    size: 4096
   vcpu: 2
   devices:
     storage:

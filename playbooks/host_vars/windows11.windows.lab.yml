@@ -22,7 +22,7 @@ guest_def:
   dist_family: Windows
   mem:
     unit: MiB
-    size: 8192
+    size: 4096
   vcpu: 2
   devices:
     storage:
