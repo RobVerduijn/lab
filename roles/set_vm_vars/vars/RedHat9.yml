@@ -1,0 +1,55 @@
+---
+guest_def:
+  os_id: http://redhat.com/rhel/9.0
+  dist: RedHat
+  dist_major: 9
+  dist_family: RedHat
+  mem:
+    unit: MiB
+    size: 4096
+  vcpu: 2
+  devices:
+    storage:
+      sda:
+        # size must be set if the device is not an iso
+        # set to size if device in G of T
+        size: 3G
+        # backing_image is optional
+        # the name of the image to clone
+        # when creating a backing image this will be its name
+        backing_image: backing_CentOS9_stream_sda.qcow2
+
+        # backing_image_pool will be determined if not set
+        # backing_image_pool:
+
+        # bootable default is false
+        # the device will be set to bootable
+        # boot order is the order of the storage dict
+        bootable: true
+
+
+        # if 'image' is set 'method' will be set to 'keep'
+        # so that the image is not replaced by a new empty image
+        # image:
+
+        # pool will be automatically determined if not set
+        # will be ignored is image is set
+        # pool:
+
+        # method default is create
+        # can be one of [ 'create', 'clone', 'keep' ]
+        # override the default image create method
+        # will be set to keep if image is set
+        # will be set to clone if backing_image is set
+        # set to create if you want to force a new empty image
+        # if image is set to an iso file the method will be forced to keep
+        method: create
+      sdb:
+        image: "{{ iso[os_image]['name'] }}"
+        bootable: true
+    network:
+      eth0:
+        # mac is optional
+        # mac: 00:00:00
+        # source_network is optional
+        # source_network: default

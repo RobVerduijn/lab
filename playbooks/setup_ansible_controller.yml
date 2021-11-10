@@ -68,7 +68,7 @@
 
     - name: install collections and roles
       command: >
-        ansible-galaxy collection install -f git+https://github.com/RobVerduijn/lab.git
+        ansible-galaxy collection install -f --force-with-deps git+https://github.com/RobVerduijn/lab.git
       when: true
 
     - name: add networks

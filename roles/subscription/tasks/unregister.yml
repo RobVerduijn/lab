@@ -1,4 +1,9 @@
 ---
-- name: Register servers
-  redhat_subscription:
-    state: absent
+#- name: Register servers
+# community.general.redhat_subscription:
+#    state: absent
+
+- name: test if the repo is already enabled
+  command: subscription-manager unregister
+  register: unregister
+  changed_when: "'System has been unregistered.' in unregister['stdout']"

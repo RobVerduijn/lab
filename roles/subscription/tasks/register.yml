@@ -32,7 +32,7 @@
   failed_when: rhsm_status.rc > 1
 
 - name: Register servers
-  redhat_subscription:
+  community.general.redhat_subscription:
     state: present
     username: '{{ redhat_login }}'
     password: '{{ redhat_password }}'
