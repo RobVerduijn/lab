@@ -67,7 +67,7 @@
         extra_args: --upgrade
 
     - name: install collections and roles
-      command: >
+      shell: |
         ansible-galaxy collection install -f --force-with-deps git+https://github.com/RobVerduijn/lab.git
       when: true
 
