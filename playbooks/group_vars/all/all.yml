@@ -18,3 +18,13 @@ ipa_realm: "{{ ipa_domain | upper }}"
 root_password: linuxlab  # encrypt this in production
 administrator: Admin
 administrator_password: windowslab  # encrypt this in production
+
+timesync_ntp_servers:
+  - hostname: 0.fedora.pool.ntp.org
+    iburst: true
+  - hostname: 1.fedora.pool.ntp.org
+    iburst: true
+  - hostname: 2.fedora.pool.ntp.org
+    iburst: true
+  - hostname: 3.fedora.pool.ntp.org
+    iburst: true
