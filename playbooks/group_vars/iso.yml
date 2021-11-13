@@ -26,7 +26,7 @@ iso:
     url: https://download.rockylinux.org/pub/rocky/8/isos/aarch64/Rocky-8.4-aarch64-dvd1.iso
     pool: default
   RedHat8:
-    name: rhel-8.4-x86_64-dvd.iso
+    name: rhel-8.5-x86_64-dvd.iso
     url: manual download
     pool: default
   RedHat9:
