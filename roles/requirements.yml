@@ -5,8 +5,7 @@ collections:
   - ansible.netcommon
   - community.general
   - community.libvirt
-  - name: fedora.linux_system_roles
-    version: 1.8.4
+  - fedora.linux_system_roles
   - freeipa.ansible_freeipa
   - theforeman.operations
   - theforeman.foreman
