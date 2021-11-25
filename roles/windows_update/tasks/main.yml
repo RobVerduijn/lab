@@ -55,6 +55,12 @@
           set_fact:
             windows_update_fail: true
 
+        # when there was a driver update the connection will be gone
+        # it will take a while before it is back
+        - name: wait for connection
+          wait_for_connection:
+            timeout: 3600
+
         - name: ensure windows update service is stopped
           ansible.windows.win_service:
             name: wuauserv
@@ -95,9 +101,10 @@
 
 # because we can't loop blocks we use recursion
 # the recursion ends when
-# - there are no more failed updates
+# - update_fail is false
 # - there are no more updates found
 # - the found_update_count equals the_installed_update_count
+# - the failed_update_count is zero or not defined
 # - there is no more reboot required
 # - python decides there is to much recursion ( this did not crash my (tower)server....yet )
 - name: call windows_update again
@@ -105,8 +112,8 @@
     name: windows_update
   when: >
     ( windows_update_fail | bool ) or
-    ( win_update.failed_update_count is defined and win_update.failed_update_count > 0 ) or
     ( win_update.found_update_count is not defined ) or
     ( win_update.installed_update_count is not defined ) or
+    ( win_update.failed_update_count is defined and win_update.failed_update_count > 0 ) or
     ( win_update.reboot_required is defined and win_update.reboot_required | bool ) or
     ( win_update.found_update_count != win_update.installed_update_count )
