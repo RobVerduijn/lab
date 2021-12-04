@@ -10,6 +10,16 @@
     url: "https://download.sysinternals.com/files/SDelete.zip"
     dest: /tmp/SDelete.zip
 
+- name: download spice vd_agent
+  get_url:
+    url: https://www.spice-space.org/download/windows/vdagent/vdagent-win-0.10.0/spice-vdagent-x64-0.10.0.msi
+    dest: /tmp/spice-vdagent-x64-0.10.0.msi
+
+- name: download spice webdav for windows
+  get_url:
+    url: https://www.spice-space.org/download/windows/spice-webdavd/spice-webdavd-x64-latest.msi
+    dest: /tmp/spice-webdavd-x64-latest.msi
+
 - block:
     - name: wait for connection
       wait_for_connection:
@@ -66,6 +76,17 @@
             [System.IO.File]::WriteAllBytes($ExportCert, $Cert.Export($ExportType))
             Import-Certificate -FilePath $ExportCert -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
 
+
+        - name: copy spice webdav msi to temp
+          ansible.windows.win_copy:
+            src: /tmp/spice-webdavd-x64-latest.msi
+            dest: C:\Windows\Temp\spice-webdavd-x64-latest.msi
+        
+        - name: install spice webdav
+          ansible.windows.win_package:
+            path: C:\Windows\Temp\spice-webdavd-x64-latest.msi
+            state: present
+
         - name: install virtio win guest tools (Drivers)
           ansible.windows.win_package:
             path: F:\virtio-win-gt-x64.msi
@@ -77,7 +98,18 @@
             path: F:\guest-agent\qemu-ga-x86_64.msi
             state: present
             arguments: /passive
-      when: guests[guest['key']]['guest_def']['dist_major'] == 10
+
+        - name: copy spice vdagent msi to temp
+          ansible.windows.win_copy:
+            src: /tmp/spice-vdagent-x64-0.10.0.msi
+            dest: C:\Windows\Temp\spice-vdagent-x64-0.10.0.msi
+        
+        - name: install spice vdagent
+          ansible.windows.win_package:
+            path: C:\Windows\Temp\spice-vdagent-x64-0.10.0.msi
+            state: present
+
+      when: guests[guest['key']]['guest_def']['dist_major'] != 11
 
     - name: copy cloudbase_init to temp
       ansible.windows.win_copy:
@@ -95,6 +127,7 @@
         dest: C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf\{{ cloudbase_conf_file }}
       loop:
         - Unattend.xml
+        - cloudbase-init.conf
         - cloudbase-init-unattend.conf
       loop_control:
         loop_var: cloudbase_conf_file

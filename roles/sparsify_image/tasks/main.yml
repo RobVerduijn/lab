@@ -13,6 +13,14 @@
     image_pool_path: "{{ ansible_libvirt_pools[image_pool]['path'] }}"
     backing_image_pool_path: "{{ ansible_libvirt_pools[backing_image_pool]['path'] }}"
 
+- name: ensure the vm is really stopped
+  command: virsh list
+  register: virsh_list_res
+  until: os_image not in virsh_list_res.stdout
+  retries: 360
+  delay: 10
+  changed_when: false
+
 - name: sparsify image
   command: >-
     /usr/bin/virt-sparsify {{ image_pool_path }}/{{ image }}

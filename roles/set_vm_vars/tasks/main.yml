@@ -5,6 +5,16 @@
 - name: include iso
   include_vars: group_vars/iso.yml
 
+- name: check if virt-sparsify is present
+  stat:
+    path: /usr/bin/virt-sparsify
+  register: sparsify
+
+- name: ensure virt-sparsify is present
+  assert:
+    that: sparsify['stat']['exists']
+    fail_msg: I need the virt-sparsify binary, check if guestfs-tools rpm is installed
+
 - name: get libvirt pool names
   community.libvirt.virt_pool:
     command: facts
