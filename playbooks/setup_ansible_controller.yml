@@ -53,11 +53,12 @@
           ansible-lint
           jmespath
           netaddr
+          ntlm-auth
           pip
           pywinrm
           requests
+          requests-ntlm
           selinux
-          yamllint
         mode: 0600
 
     - name: Initiate virtualenv

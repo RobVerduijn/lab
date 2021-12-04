@@ -1,0 +1,89 @@
+---
+- name: create windows2k19.windows.lab guest
+  hosts: buildhost
+  gather_facts: true
+  remote_user: root
+  vars:
+    vms:
+      - windows2k19.windows.lab
+  tasks:
+    - name: include set vm vars
+      include_role:
+        name: RobVerduijn.lab.set_vm_vars
+
+    - name: delete {{ vms | join(' ') }}
+      include_role:
+        name: RobVerduijn.lab.delete_guest
+      when:
+        - delete_vm is defined
+        - delete_vm | bool
+
+    - name: create {{ vms | join(' ') }}
+      include_role:
+        name: RobVerduijn.lab.create_guest
+
+    - name: ensure guests are started
+      community.libvirt.virt:
+        name: "{{ guest['key'] }}"
+        state: running
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+    - name: add guests to inventory
+      include_role:
+        name: RobVerduijn.lab.add_guest_to_inventory
+      loop: "{{ guests | dict2items }}"
+      loop_control:
+        loop_var: guest
+
+- name: set windows admin account
+  hosts: windows2k19.windows.lab
+  gather_facts: false
+  remote_user: Admin
+  connection: winrm
+  vars:
+    ansible_password: windowslab
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_read_timeout_sec: 600
+  tasks:
+    - name: wait for {{ inventory_hostname }} to fully start
+      wait_for_connection:
+    
+    - name: reset Admin password
+      ansible.windows.win_user:
+        name: "{{ administrator }}"
+        password: "{{ administrator_password }}"
+        update_password: always
+        groups:
+          - Administrators
+          - Users
+        groups_action: add
+
+- name: configure windows
+  hosts: windows10.windows.lab
+  gather_facts: false
+  remote_user: "{{ administrator }}"
+  connection: winrm
+  vars:
+    ansible_password: "{{ administrator_password }}"
+    ansible_winrm_transport: ntlm
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_read_timeout_sec: 600
+  tasks:
+    - name: wait for {{ inventory_hostname }} to fully start
+      wait_for_connection:
+
+    - name: determine cloudbase-init product id
+      ansible.windows.win_shell: (get-wmiobject Win32_Product -filter "Name LIKE '%Cloudbase-Init%'").IdentifyingNumber
+      register: product_id
+
+    - name: uninstall cloudbase-init
+      ansible.windows.win_package:
+        product_id: "{{ product_id['stdout'] | trim }}"
+        state: absent
+
+    - name: ready
+      debug:
+        msg: "{{ inventory_hostname }} is ready"

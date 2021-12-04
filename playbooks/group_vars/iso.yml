@@ -34,7 +34,7 @@ iso:
     url: manual download
     pool: default
   Windows10:
-    name: Win10_21H1_English_x64.iso
+    name: Win10_21H2_English_x64.iso
     url: manual download
     pool: default
   Windows11:
