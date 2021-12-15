@@ -1,0 +1,38 @@
+---
+- name: 'windows : Sets NTP as time protocol'
+  ansible.windows.win_regedit:
+    path: HKLM:\Software\Policies\Microsoft\W32time\Parameters
+    name: Type
+    data: '{{ ntp_time_type }}'
+    type: string
+  notify:
+    - update ntp config
+
+- name: 'windows : Sets NTP Server'
+  ansible.windows.win_regedit:
+    path: HKLM:\Software\Policies\Microsoft\W32time\Parameters
+    name: NtpServer
+    data: "{{ timesync_ntp_servers | json_query('[*].hostname') | join(',' + ntp_flag + ' ') }}"
+    type: string
+  notify:
+    - update ntp config
+
+- name: 'windows : Sets NTP Client Settings'
+  ansible.windows.win_regedit:
+    path: HKLM:\SOFTWARE\Policies\Microsoft\W32time\TimeProviders\NtpClient
+    name: '{{ item.name }}'
+    data: '{{ item.data }}'
+    type: dword
+  with_items:
+    - name: CrossSiteSyncFlags
+      data: '{{ ntp_crosssitesyncflags }}'
+    - name: ResolvePeerBackoffMinutes
+      data: '{{ ntp_resolvepeerbackoffminutes }}'
+    - name: ResolvePeerBackoffMaxTimes
+      data: '{{ ntp_resolvepeerbackoffmaxtimes }}'
+    - name: SpecialPollInterval
+      data: '{{ ntp_specialpollinterval }}'
+    - name: EventLogFlags
+      data: '{{ ntp_eventlogflags }}'
+  notify:
+    - update ntp config

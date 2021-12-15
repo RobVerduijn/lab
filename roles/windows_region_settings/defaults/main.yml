@@ -1,0 +1,9 @@
+---
+# https://docs.microsoft.com/en-us/previous-versions/windows/embedded/ms912391(v=winembedded.11)?redirectedfrom=MSDN
+timezone: W. Europe Standard Time
+# format: https://docs.microsoft.com/en-us/dotnet/api/system.globalization.cultureinfo?redirectedfrom=MSDN&view=net-6.0
+format: nl-NL
+# location: https://msdn.microsoft.com/en-us/library/dd374073.aspx
+location: 176
+# unicode_language: https://msdn.microsoft.com/en-us/library/system.globalization.cultureinfo.aspx
+unicode_language: en-US

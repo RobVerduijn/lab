@@ -1,0 +1,26 @@
+---
+- name: features | Enable Remote Desktop Service
+  ansible.windows.win_feature:
+    name: "{{ feature }}"
+    state: present
+  loop:
+    - RDS-RD-Server
+    - RSAT-RDS-Licensing-Diagnosis-UI
+  loop_control:
+    loop_var: feature
+  when:
+    - windows_remote_desktop_enabled | bool
+  notify: reboot
+
+- name: features | Disable Remote Desktop Service
+  ansible.windows.win_feature:
+    name: "{{ feature }}"
+    state: absent
+  loop:
+    - RDS-RD-Server
+    - RSAT-RDS-Licensing-Diagnosis-UI
+  loop_control:
+    loop_var: feature
+  when:
+    - not windows_remote_desktop_enabled | bool
+  notify: reboot

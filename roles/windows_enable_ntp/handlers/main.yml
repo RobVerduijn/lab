@@ -1,0 +1,8 @@
+---
+- name: update ntp config
+  ansible.builtin.win_shell: w32tm /config /update
+
+- name: reboot
+  ansible.windows.win_reboot:
+    post_reboot_delay: '60'
+    reboot_timeout: '1800'

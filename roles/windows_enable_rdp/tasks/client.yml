@@ -1,0 +1,20 @@
+---
+- name: enable winrdp regkey
+  ansible.windows.win_regedit:
+    path: HKLM:\System\CurrentControlSet\Control\Terminal Server
+    name: fDenyTSConnections
+    data: 0
+    type: dword
+  when:
+    - windows_remote_desktop_enabled | bool
+  notify: reboot
+
+- name: disable winrdp regkey
+  ansible.windows.win_regedit:
+    path: HKLM:\System\CurrentControlSet\Control\Terminal Server
+    name: fDenyTSConnections
+    data: 1
+    type: dword
+  when:
+    - not windows_remote_desktop_enabled | bool
+  notify: reboot

@@ -1,0 +1,20 @@
+# tasks file for ansible-windows-remote-desktop
+
+- name: gather facts
+  setup:
+  when: ansible_os_installation_type is not defined
+
+- name: enable rdp for server
+  include: server.yml
+  when:
+    - ansible_os_installation_type is defined
+    - ansible_os_installation_type == "Server"
+
+- name: enable rdp for server
+  include: client.yml
+  when: |-
+    ( ansible_os_installation_type is not defined )
+    or
+    ( ansible_os_installation_type == "Client" )
+
+- include: firewall.yml
