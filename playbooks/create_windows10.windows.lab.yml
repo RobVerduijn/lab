@@ -84,6 +84,16 @@
         product_id: "{{ product_id['stdout'] | trim }}"
         state: absent
 
+    - name: configure windows
+      include_role:
+        name: "{{ role }}"
+      loop:
+        - RobVerduijn.lab.windows_enable_ntp
+        - RobVerduijn.lab.windows_enable_rdp
+        - RobVerduijn.lab.windows_region_settings
+      loop_control:
+        loop_var: role
+
     - name: ready
       debug:
         msg: "{{ inventory_hostname }} is ready"
