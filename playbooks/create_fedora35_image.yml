@@ -1,5 +1,5 @@
 ---
-- name: create Fedora34 backing image
+- name: create Fedora35 backing image
   hosts: buildhost
   gather_facts: true
   remote_user: root

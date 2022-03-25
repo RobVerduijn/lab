@@ -4,6 +4,7 @@
   get_url:
     url: "{{ cloudbase_url }}"
     dest: /tmp/CloudbaseInitSetup_x64.msi
+    validate_certs: false
   
 - name: download SDelete
   get_url:

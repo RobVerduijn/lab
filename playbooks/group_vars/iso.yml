@@ -30,7 +30,7 @@ iso:
     url: manual download
     pool: default
   RedHat9:
-    name: rhel-baseos-9.0-beta-0-x86_64-dvd.iso
+    name: rhel-baseos-9.0-beta-1-x86_64-dvd.iso
     url: manual download
     pool: default
   Windows10:
@@ -38,7 +38,7 @@ iso:
     url: manual download
     pool: default
   Windows11:
-    name: Win11_English_x64.iso
+    name: Win11_English_x64v1.iso
     url: manual download
     pool: default
   Windows2k19:

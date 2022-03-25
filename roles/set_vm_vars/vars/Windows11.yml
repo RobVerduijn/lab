@@ -47,7 +47,7 @@ guest_def:
         image: "{{ iso[os_image]['name'] }}"
         bootable: true
       sdc:
-        image: "{{ iso['virtio_0_1_208']['name'] }}"
+        image: "{{ iso['virtio']['name'] }}"
     network:
       eth0:
         # mac is optional
