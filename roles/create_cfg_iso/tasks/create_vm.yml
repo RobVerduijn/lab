@@ -1,5 +1,5 @@
 ---
-- name: debug shit
+- name: debug shit {{ guest['key'] }}
   debug:
     var: guests[guest['key']]['guest_def']
 

@@ -62,7 +62,7 @@
         groups_action: add
 
 - name: configure windows
-  hosts: windows10.windows.lab
+  hosts: windows2k19.windows.lab
   gather_facts: false
   remote_user: "{{ administrator }}"
   connection: winrm
@@ -83,6 +83,17 @@
       ansible.windows.win_package:
         product_id: "{{ product_id['stdout'] | trim }}"
         state: absent
+
+    - name: configure windows
+      include_role:
+        name: "{{ role }}"
+      loop:
+        - RobVerduijn.lab.windows_disable_servermanager
+        - RobVerduijn.lab.windows_enable_ntp
+        - RobVerduijn.lab.windows_enable_rdp
+        - RobVerduijn.lab.windows_region_settings
+      loop_control:
+        loop_var: role
 
     - name: ready
       debug:

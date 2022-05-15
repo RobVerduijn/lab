@@ -1,9 +1,17 @@
 ---
 - block:
+    - name: debug play hosts
+      debug:
+        var: ansible_play_hosts_all
+    
+    - name: debug guest
+      debug:
+        var: hostvars[guest['key']]
+
     - name: wait for guest to fully start
       wait_for_connection:
         timeout: 3600
-
+      
     - name: gather facts
       setup:
 
@@ -77,7 +85,6 @@
   delegate_to: "{{ os_image }}"
   vars:
     ansible_user: "root"
-    ansible_password: "{{ root_password }}"
 
 - name: shutdown kvm guest
   community.libvirt.virt:
@@ -100,7 +107,7 @@
     --delete '/etc/NetworkManager/system-connections/*'
     --delete '/var/lib/systemd/random-seed'
     --truncate '/etc/machine-id'
-    --truncate '/etc/resolv.conf'
+    --delete '/etc/resolv.conf'
     --hostname localhost.localdomain
     --selinux-relabel
   tags:

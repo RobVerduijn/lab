@@ -15,12 +15,12 @@ network_connections:
 
 guest_def:
   ansible_user: root
-  root_password: centos84  # encrypt this with ansible-vault
+  root_password: centos85  # encrypt this with ansible-vault
   root_pubkey: "{{ root_pubkey }}"
   host_groups:
     - all
     - katello
-  os_id: http://centos.org/centos/8
+  os_id: http://centos.org/centos-stream/8
   dist: CentOS
   dist_major: 8
   dist_family: RedHat
@@ -37,7 +37,7 @@ guest_def:
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        backing_image: backing_CentOS8_sda.qcow2
+        backing_image: backing_CentOS8_stream_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:

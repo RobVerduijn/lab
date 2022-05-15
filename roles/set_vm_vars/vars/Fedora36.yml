@@ -1,8 +1,8 @@
 ---
 guest_def:
-  os_id: http://centos.org/centos/8
-  dist: CentOS
-  dist_major: 8
+  os_id: http://fedoraproject.org/fedora/34
+  dist: Fedora
+  dist_major: 36
   dist_family: RedHat
   mem:
     unit: MiB
@@ -13,7 +13,7 @@ guest_def:
       sda:
         # size must be set if the device is not an iso
         # set to size if device in G of T
-        size: 3G
+        size: 4G
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name

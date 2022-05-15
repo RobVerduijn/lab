@@ -4,7 +4,7 @@
 cdrom
 repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
 {# Keyboard layouts #}
-keyboard --vckeymap=us --xlayouts='us'
+keyboard --xlayouts='us'
 {# System language #}
 lang en_US.UTF-8
 {# Network information #}
@@ -22,7 +22,7 @@ eula --agreed
 {# reboot or poweroff after installation #}
 reboot
 {# System services #}
-services --disabled="kdump" --enabled="NetworkManager,sshd,chronyd,rngd"
+services --disabled="kdump" --enabled="NetworkManager,sshd,chronyd"
 {# System timezone #}
 timezone Europe/Amsterdam --isUtc
 {# Partition clearing information #}

@@ -10,7 +10,7 @@
   ansible.windows.win_service:
     name: WinRM
     state: started
-    start_mode: delayed
+    start_mode: auto
 
 - name: check for pending reboot
   ansible.builtin.win_shell: |
@@ -38,7 +38,7 @@
   ansible.windows.win_service:
     name: wuauserv
     state: started
-    start_mode: delayed
+    start_mode: auto
 
 - block:
     - block:
@@ -48,6 +48,17 @@
             state: installed
             log_path: c:\ansible_wu.txt
           register: win_update
+          ignore_unreachable: true  # needed when network card drivers are updated
+        
+        # ensure win_update has valid values
+        # needed when previous task fails with unreachable
+        - name: check update status
+          ansible.windows.win_updates:
+            category_names: "{{ windows_update_category_names }}"
+            state: searched
+            log_path: c:\ansible_wu.txt
+          register: win_update
+        
       rescue:
         # we really need a rescue block
         # because the update usually finishes with an error
@@ -97,7 +108,7 @@
       ansible.windows.win_service:
         name: wuauserv
         state: started
-        start_mode: delayed
+        start_mode: auto
 
 # because we can't loop blocks we use recursion
 # the recursion ends when

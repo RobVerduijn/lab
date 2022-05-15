@@ -1,10 +1,10 @@
 ---
-- name: create centos8 backing image
+- name: create Fedora36 backing image
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
-    os_image: CentOS8
+    os_image: Fedora36
 
   tasks:
     - name: include set vm vars

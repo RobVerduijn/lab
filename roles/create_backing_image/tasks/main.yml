@@ -42,6 +42,6 @@
 - name: include {{ guests[os_image]['guest_def']['dist_family'] }}
   include_tasks: "{{ guests[os_image]['guest_def']['dist_family'] }}.yml"
 
-- name: sysprep image
+- name: sparsify image
   include_role:
     name: RobVerduijn.lab.sparsify_image

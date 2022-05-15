@@ -9,10 +9,6 @@ iso:
     name: CentOS-Stream-9-latest-x86_64-dvd1.iso
     url: https://mirrors.centos.org/mirrorlist?path=/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso&redirect=1&protocol=https
     pool: default
-  CentOS8:
-    name: CentOS-8.4.2105-x86_64-dvd1.iso
-    url: http://ftp.nluug.nl/ftp/pub/os/Linux/distr/CentOS/8/isos/x86_64/CentOS-8.4.2105-x86_64-dvd1.iso
-    pool: default
   Fedora34:
     name: Fedora-Server-dvd-x86_64-34-1.2.iso
     url: http://fedora.mirror.liteserver.nl/linux/releases/34/Server/x86_64/iso/Fedora-Server-dvd-x86_64-34-1.2.iso
@@ -20,6 +16,10 @@ iso:
   Fedora35:
     name: Fedora-Server-dvd-x86_64-35-1.2.iso
     url: http://fedora.mirror.liteserver.nl/linux/releases/35/Server/x86_64/iso/Fedora-Server-dvd-x86_64-35-1.2.iso
+    pool: default
+  Fedora36:
+    name: Fedora-Server-dvd-x86_64-36-1.5.iso
+    url: https://fedora.mirror.wearetriple.com/linux/releases/36/Server/x86_64/iso/Fedora-Server-dvd-x86_64-36-1.5.iso
     pool: default
   Rocky8:
     name: Rocky-8.4-x86_64-dvd1.iso
@@ -30,7 +30,7 @@ iso:
     url: manual download
     pool: default
   RedHat9:
-    name: rhel-baseos-9.0-beta-0-x86_64-dvd.iso
+    name: rhel-baseos-9.0-beta-5-x86_64-dvd.iso
     url: manual download
     pool: default
   Windows10:
@@ -38,7 +38,7 @@ iso:
     url: manual download
     pool: default
   Windows11:
-    name: Win11_English_x64.iso
+    name: Win11_English_x64v1.iso
     url: manual download
     pool: default
   Windows2k19:

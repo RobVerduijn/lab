@@ -2,3 +2,4 @@ passwords.yml
 secrets.yml
 playbooks/collections/requirements.yml
 playbooks/roles/requirements.yml
+playbooks/ansible-navigator.log

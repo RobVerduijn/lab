@@ -94,5 +94,8 @@
     <rng model='virtio'>
       <backend model='random'>/dev/urandom</backend>
     </rng>
+    <vsock model="virtio">
+      <cid auto="yes" address="3"/>
+    </vsock>
   </devices>
 </domain>
