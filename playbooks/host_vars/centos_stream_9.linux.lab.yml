@@ -28,7 +28,7 @@ guest_def:
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        backing_image: backing_CentOS9_stream_sda.qcow2
+        backing_image: backing_CentOS_Stream_9_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:

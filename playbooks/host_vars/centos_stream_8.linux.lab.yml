@@ -1,19 +1,30 @@
 ---
+network_connections:
+  - name: eth0
+    state: up
+    type: ethernet
+    interface_name: eth0
+    ip:
+      dhcp4: true
+
 guest_def:
+  ansible_user: root
+  root_password: centosstream  # encrypt this with ansible-vault
+  root_pubkey: "{{ root_pubkey }}"
   os_id: http://centos.org/centos-stream/8
   dist: CentOS
   dist_major: 8
   dist_family: RedHat
   mem:
     unit: MiB
-    size: 4096
+    size: 2048
   vcpu: 2
   devices:
     storage:
       sda:
         # size must be set if the device is not an iso
         # set to size if device in G of T
-        size: 10G
+        size: 60G
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
@@ -26,7 +37,6 @@ guest_def:
         # the device will be set to bootable
         # boot order is the order of the storage dict
         bootable: true
-
 
         # if 'image' is set 'method' will be set to 'keep'
         # so that the image is not replaced by a new empty image
@@ -43,10 +53,7 @@ guest_def:
         # will be set to clone if backing_image is set
         # set to create if you want to force a new empty image
         # if image is set to an iso file the method will be forced to keep
-        method: create
-      sdb:
-        image: "{{ iso[os_image]['name'] }}"
-        bootable: true
+        # method: create
     network:
       eth0:
         # mac is optional

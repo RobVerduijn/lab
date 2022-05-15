@@ -5,7 +5,7 @@
   remote_user: root
   vars:
     vms:
-      - centos9stream.linux.lab
+      - centos_stream_9.linux.lab
   tasks:
     - name: include set vm vars
       include_role:
