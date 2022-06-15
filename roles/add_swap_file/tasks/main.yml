@@ -40,7 +40,7 @@
             state: touch
 
         - name: ensure btrfs compression property is none
-          command: btrfs property set "{{ swap_file_path }}" compression none
+          command: btrfs property set "{{ swap_file_path }}" compression ""
 
       when: ( ansible_mounts | community.general.json_query("[?mount=='/'].fstype") )[0] == 'btrfs'
 

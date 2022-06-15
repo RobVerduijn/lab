@@ -6,20 +6,20 @@ instance-id: {{ lookup('password', '/dev/null length=32 chars=hexdigits') | to_u
 network-interfaces: |
   auto {{ guests[guest['key']]['network_connections'][0]['name'] }}  
   iface {{ guests[guest['key']]['network_connections'][0]['name'] }} inet static
-  address {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}
-  network {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('network') }}
-  netmask {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}
-  broadcast {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('broadcast') }}
+  address {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('address') }}
+  network {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('network') }}
+  netmask {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('netmask') }}
+  broadcast {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('broadcast') }}
   gateway {{ guests[guest['key']]['network_connections'][0]['ip']['gateway4']  }}
   dns-nameservers {{ guests[guest['key']]['network_connections'][0]['ip']['dns'] | join(' ') }}
   dns-search {{ guests[guest['key']]['network_connections'][0]['ip']['dns_search'] | join(' ') }}
 {%  elif guests[guest['key']]['guest_def']['dist_family'] == 'Windows' %}
 network-interfaces: |
   iface {{ guests[guest['key']]['network_connections'][0]['name'] }} inet static
-  address {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}
-  network {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('network') }}
-  netmask {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}
-  broadcast {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('broadcast') }}
+  address {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('address') }}
+  network {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('network') }}
+  netmask {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('netmask') }}
+  broadcast {{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('broadcast') }}
   gateway {{ guests[guest['key']]['network_connections'][0]['ip']['gateway4']  }}
   dns-nameservers {{ guests[guest['key']]['network_connections'][0]['ip']['dns'] | join(' ') }}
   dns-search {{ guests[guest['key']]['network_connections'][0]['ip']['dns_search'] | join(' ') }}
