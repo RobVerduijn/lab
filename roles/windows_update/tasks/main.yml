@@ -54,7 +54,7 @@
         # needed when previous task fails with unreachable
         - name: check update status
           ansible.windows.win_updates:
-            category_names: "{{ windows_update_category_names }}"
+            category_names: "{{ category_names }}"
             state: searched
             log_path: c:\ansible_wu.txt
           register: win_update
