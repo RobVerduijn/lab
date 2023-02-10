@@ -64,7 +64,7 @@
   ansible.builtin.package:
     name: "{{ foreman_installer_package }}"
     state: present
-  when: "foreman_installer_package not in anfalseible_facts['packages'].keys()"
+  when: "foreman_installer_package not in ansible_facts['packages'].keys()"
 
 - name: Set installer command
   ansible.builtin.set_fact:
