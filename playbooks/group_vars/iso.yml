@@ -22,15 +22,19 @@ iso:
     url: https://fedora.mirror.wearetriple.com/linux/releases/36/Server/x86_64/iso/Fedora-Server-dvd-x86_64-36-1.5.iso
     pool: default
   Rocky8:
-    name: Rocky-8.4-x86_64-dvd1.iso
-    url: https://download.rockylinux.org/pub/rocky/8/isos/aarch64/Rocky-8.4-aarch64-dvd1.iso
+    name: Rocky-8.7-x86_64-dvd1.iso
+    url: https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.7-x86_64-dvd1.iso
+    pool: default
+  Rocky9:
+    name: Rocky-9.1-x86_64-dvd.iso
+    url: https://download.rockylinux.org/pub/rocky/9/isos/x86_64/Rocky-9.1-x86_64-dvd.iso
     pool: default
   RedHat8:
-    name: rhel-8.5-x86_64-dvd.iso
+    name: rhel-8.7-x86_64-dvd.iso
     url: manual download
     pool: default
   RedHat9:
-    name: rhel-baseos-9.0-beta-5-x86_64-dvd.iso
+    name: rhel-baseos-9.1-x86_64-dvd.iso
     url: manual download
     pool: default
   Windows10:

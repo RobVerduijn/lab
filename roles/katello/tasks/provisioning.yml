@@ -1,0 +1,22 @@
+---
+- name: Update os  # noqa: args[module]
+  theforeman.foreman.operatingsystem:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
+    name: "{{ product['provisioning']['name'] }}"
+    family: "{{ product['provisioning']['family'] }}"
+    major: "{{ product['provisioning']['major'] }}"
+    minor: "{{ product['provisioning']['minor'] | default(omit) }}"
+    ptables: "{{ product['provisioning']['ptables'] | default(omit) }}"
+    media:
+      - "{{ product['provisioning']['media'] }}"
+    password_hash: "{{ product['provisioning']['password_hash'] }}"
+    provisioning_templates: "{{ product['provisioning']['templates'] | default(omit) }}"
+    state: "{{ product['provisioning']['state'] }}"
+    description: "{{ product['provisioning']['description'] | default(omit) }}"
+    architectures: "{{ product['provisioning']['architectures'] | default(omit) }}"
+  loop: "{{ products }}"
+  loop_control:
+    loop_var: product

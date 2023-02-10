@@ -5,8 +5,10 @@
   remote_user: root
   vars:
     vms:
-      - centos8.linux.lab
-      - centos8stream.linux.lab
+      #- centos8.linux.lab
+      #- centos8stream.linux.lab
+      - rhel8.linux.lab
+      - rhel9.linux.lab
 
   tasks:
     - name: include set vm vars

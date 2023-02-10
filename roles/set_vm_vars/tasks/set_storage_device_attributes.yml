@@ -1,63 +1,63 @@
 ---
-- name: set readable vars
-  set_fact:
+- name: Set readable vars
+  ansible.builtin.set_fact:
     dev: "{{ device['key'] }}"
 
-- name: set pool of the specified image
-  include_tasks: set_image_pool.yml
+- name: Set pool of the specified image
+  ansible.builtin.include_tasks: set_image_pool.yml
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['image'] is defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['pool'] is not defined
 
-- name: set backing_image_pool of the specified backing_image
-  include_tasks: set_backing_image_pool.yml
+- name: Set backing_image_pool of the specified backing_image
+  ansible.builtin.include_tasks: set_backing_image_pool.yml
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['backing_image'] is defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['backing_image_pool'] is not defined
 
-- name: set device pool
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'pool': 'default' }}}}}}, recursive=True) }}"
+- name: Set device pool
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'pool': 'default'}}}}}}, recursive=True) }}"
   when: guests[guest]['guest_def']['devices']['storage'][dev]['pool'] is not defined
 
-- name: set image
-  set_fact:
-    image: "{{ guest | lower | replace('.','_') }}_{{ dev }}.qcow2"
+- name: Set image
+  ansible.builtin.set_fact:
+    image: "{{ guest | lower | replace('.', '_') }}_{{ dev }}.qcow2"
 
-- name: set device image name
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'image': image }}}}}}, recursive=True) }}"
+- name: Set device image name
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'image': image}}}}}}, recursive=True) }}"
   when: guests[guest]['guest_def']['devices']['storage'][dev]['image'] is not defined
 
-- name: set type to cdrom
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'type': 'cdrom', 'method': 'keep' }}}}}}, recursive=True) }}"
+- name: Set type to cdrom
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'type': 'cdrom', 'method': 'keep'}}}}}}, recursive=True) }}"
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['type'] is not defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['image'] | regex_search('.*iso$', ignorecase=True)
 
-- name: set type to disk
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'type': 'disk' }}}}}}, recursive=True) }}"
+- name: Set type to disk
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'type': 'disk'}}}}}}, recursive=True) }}"
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['type'] is not defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['image'] | regex_search('.*qcow2$')
 
-- name: set device method to create
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'method': 'create' }}}}}}, recursive=True) }}"
+- name: Set device method to create
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'method': 'create'}}}}}}, recursive=True) }}"
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['backing_image'] is not defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['method'] is not defined
 
-- name: set device method to clone
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'method': 'clone' }}}}}}, recursive=True) }}"
+- name: Set device method to clone
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'method': 'clone'}}}}}}, recursive=True) }}"
   when:
     - guests[guest]['guest_def']['devices']['storage'][dev]['backing_image'] is defined
     - guests[guest]['guest_def']['devices']['storage'][dev]['method'] is not defined
 
-- name: set device bootable
-  set_fact:
-    guests: "{{ guests | combine({ guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'bootable': false }}}}}}, recursive=True) }}"
+- name: Set device bootable
+  ansible.builtin.set_fact:
+    guests: "{{ guests | combine({guest: {'guest_def': {'devices': {'storage': {dev: {'bootable': false}}}}}}, recursive=True) }}"
   when: guests[guest]['guest_def']['devices']['storage'][dev]['bootable'] is not defined

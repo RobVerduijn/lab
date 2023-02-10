@@ -1,18 +1,18 @@
 ---
-- name: configure proxies
-  include_tasks: proxies.yml
-  when:
-    - foreman_configure_proxies is defined
-    - foreman_configure_proxies | bool
+- name: Computer resource libvirt plugin
+  ansible.builtin.include_tasks: compute_resource_libvirt.yml
+  when: foreman_plugin_enable_compute_libvirt | default(false) | bool
 
-- name: computer resource libvirt plugin
-  include_tasks: compute_resource_libvirt.yml
-  when:
-    - foreman_plugin_enable_compute_libvirt is defined
-    - foreman_plugin_enable_compute_libvirt | bool
+- name: Configure proxies
+  ansible.builtin.include_tasks: proxies.yml
+  when: foreman_configure_proxies | default(false) | bool
 
-- name: configure domain
+- name: Configure domain
   theforeman.foreman.domain:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: "{{ ipa_domain }}"
     dns_proxy: "{{ inventory_hostname }}"
     locations:
@@ -21,12 +21,18 @@
       - "{{ foreman_installer_option_org }}"
     state: present
   when:
-    - foreman_configure_domain is defined
-    - foreman_configure_domain | bool
+    - foreman_configure_proxies | default(false) | bool
+    - foreman_configure_dns | default(false) | bool
+    - foreman_configure_domain | default(false) | bool
 
-- name: linux.lab subnet
+- name: Linux.lab subnet
   theforeman.foreman.subnet:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: "{{ ipa_domain }}"
+    description: "{{ ipa_domain }} {{ foreman_installer_option_org }} {{ foreman_installer_option_loc }}"
     network: "{{ foreman_proxy_dhcp_network }}"
     mask: "{{ foreman_proxy_dhcp_netmask }}"
     gateway: "{{ foreman_proxy_dhcp_gateway }}"
@@ -47,5 +53,8 @@
       - "{{ foreman_installer_option_loc }}"
     state: present
   when:
-    - foreman_configure_subnet is defined
-    - foreman_configure_subnet | bool
+    - foreman_configure_proxies | default(false) | bool
+    - foreman_proxy_dns | default(false) | bool
+    - foreman_configure_domain | default(false) | bool
+    - foreman_proxy_dhcp | default(false) | bool
+    - foreman_proxy_tftp | default(false) | bool

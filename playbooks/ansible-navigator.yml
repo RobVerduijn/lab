@@ -1,0 +1,16 @@
+---
+ansible-navigator:
+  ansible:
+    cmdline: >-
+      --ask-vault-pass
+    inventory:
+      entries:
+        - inventory
+  execution-environment:
+    enabled: true
+    image: localhost/ansible-execution-env:latest
+    pull:
+      policy: never
+  mode: stdout
+  playbook-artifact:
+    enable: false

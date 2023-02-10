@@ -1,44 +1,47 @@
 ---
-- name: run foreman installer to {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("enable", "disable") }} libvirt-compute-resource
-  command: >-
+- name: Run foreman installer to libvirt-compute-resource {{ (foreman_plugin_enable_compute_libvirt | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
     {{ foreman_install_cmd }}
-    {{ (foreman_plugin_enable_compute_libvirt|bool) | ternary("--enable-foreman-compute-libvirt","--no-enable-foreman-compute-libvirt") }}
+    {{ (foreman_plugin_enable_compute_libvirt | bool) | ternary("--enable-foreman-compute-libvirt", "--no-enable-foreman-compute-libvirt") }}
   register: foreman_installer_run
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
 
-- name: get foreman user info
-  getent:
+- name: Get foreman user info
+  ansible.builtin.getent:
     database: passwd
     key: foreman
 
-- name: create ssh key pair for the foreman user (4096 bits, rsa)
+- name: Create ssh key pair for the foreman user (4096 bits, rsa)
   community.crypto.openssh_keypair:
     path: "{{ getent_passwd['foreman'][4] }}/.ssh/id_rsa"
     owner: foreman
     group: foreman
+    setype: ssh_home_t
 
-- name: read foreman pubkey
-  slurp:
+- name: Read foreman pubkey
+  ansible.builtin.slurp:
     src: "{{ getent_passwd['foreman'][4] }}/.ssh/id_rsa.pub"
   register: foreman_pubkey
 
-- name: delegate block to {{ groups['buildhost'][0] }}
+- name: Delegate block to {{ groups['buildhost'][0] }}
+  delegate_to: "{{ groups['buildhost'][0] }}"
+  remote_user: root
   block:
-    - name: add foreman user
-      user:
+    - name: Add foreman user
+      ansible.builtin.user:
         name: foreman
         home: /var/lib/foreman
         state: present
 
-    - name: install authorized key
+    - name: Install authorized key
       ansible.posix.authorized_key:
         user: foreman
         state: present
         key: "{{ foreman_pubkey['content'] | b64decode }}"
 
-    - name: allow access via polkit
-      copy:
+    - name: Allow access via polkit
+      ansible.builtin.copy:
         dest: /etc/polkit-1/rules.d/20-libvirt-foreman-manage.rules
         content: |
             polkit.addRule(function(action, subject) {
@@ -48,30 +51,27 @@
             });
         mode: 0644
 
-    - name: get {{ groups['buildhost'][0] }} host pub key
-      slurp:
+    - name: Get host pub key {{ groups['buildhost'][0] }}
+      ansible.builtin.slurp:
         src: /etc/ssh/ssh_host_ecdsa_key.pub
       register: compute_pubkey
 
-    - name: add spice service to firewalld libvirt zone on {{ groups['buildhost'][0] }}
+    - name: Add spice service to firewalld libvirt zone on {{ groups['buildhost'][0] }}
       ansible.posix.firewalld:
         zone: libvirt
         service: spice
         permanent: true
         state: enabled
 
-  delegate_to: "{{ groups['buildhost'][0] }}"
-  remote_user: root
-
-- name: add {{ groups['buildhost'][0] }} pub foreman known_hosts file
-  known_hosts:
+- name: Add pub foreman known_hosts file {{ groups['buildhost'][0] }}
+  ansible.builtin.known_hosts:
     name: "{{ groups['buildhost'][0] }}"
     key: "{{ groups['buildhost'][0] }} {{ compute_pubkey['content'] | b64decode }}"
     path: "{{ getent_passwd['foreman'][4] }}/.ssh/known_hosts"
     state: present
 
-- name: ensure known hosts file is owned by foreman
-  file:
+- name: Ensure known hosts file is owned by foreman
+  ansible.builtin.file:
     path: "{{ getent_passwd['foreman'][4] }}/.ssh/known_hosts"
     owner: foreman
     group: foreman
@@ -80,6 +80,10 @@
 
 - name: Create livirt compute resource
   theforeman.foreman.compute_resource:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: "{{ groups['buildhost'][0] }}"
     locations:
       - "{{ foreman_installer_option_loc }}"
@@ -92,8 +96,12 @@
       set_console_password: false
     state: present
 
-- name: compute profile 1-Small
+- name: Compute profile 1-Small
   theforeman.foreman.compute_profile:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: 1-Small
     compute_attributes:
       - compute_resource: "{{ groups['buildhost'][0] }}"
@@ -112,8 +120,12 @@
               allocation: 0G
               format_type: qcow2
 
-- name: compute profile 2-Medium
+- name: Compute profile 2-Medium
   theforeman.foreman.compute_profile:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: 2-Medium
     compute_attributes:
       - compute_resource: "{{ groups['buildhost'][0] }}"
@@ -132,8 +144,12 @@
               allocation: 0G
               format_type: qcow2
 
-- name: compute profile 3-Large
+- name: Compute profile 3-Large
   theforeman.foreman.compute_profile:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
     name: 3-Large
     compute_attributes:
       - compute_resource: "{{ groups['buildhost'][0] }}"

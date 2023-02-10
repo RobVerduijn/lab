@@ -1,0 +1,27 @@
+---
+- name: Clear repositories
+  ansible.builtin.set_fact:
+    repositories: []
+
+- name: Define repositories
+  ansible.builtin.set_fact:
+    repositories: >-
+      {{ repositories +
+        [{
+          'name': repository['name'],
+          'product': product['name'],
+        }]
+      }}
+  loop: "{{ product['repositories'] }}"
+  loop_control:
+    loop_var: repository
+
+- name: Define content views
+  ansible.builtin.set_fact:
+    content_views: >-
+      {{ content_views | default([]) +
+        [{
+          'name': product['name'] + ' cv',
+          'repositories': repositories
+        }]
+      }}

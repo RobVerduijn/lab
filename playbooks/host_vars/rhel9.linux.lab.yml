@@ -11,7 +11,7 @@ guest_def:
   ansible_user: root
   root_password: redhat90  # encrypt this with ansible-vault
   root_pubkey: "{{ root_pubkey }}"
-  os_id: http://centos.org/centos-stream/9
+  os_id: http://redhat.com/rhel/9.0
   dist: RedHat
   dist_major: 9
   dist_family: RedHat
@@ -28,7 +28,7 @@ guest_def:
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        backing_image: backing_CentOS9_stream_sda.qcow2
+        backing_image: backing_RedHat9_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:

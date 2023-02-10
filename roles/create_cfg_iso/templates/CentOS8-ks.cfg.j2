@@ -32,11 +32,11 @@ zerombr
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
 {# to simplefy the image only a /boot and / partition #}
-autopart --noswap
+autopart
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}
-%packages --excludedocs --excludeWeakdeps
+%packages --excludedocs
 @core
 kernel-core
 python3

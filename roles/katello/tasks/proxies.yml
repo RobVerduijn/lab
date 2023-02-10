@@ -1,8 +1,8 @@
 ---
 # enable dns proxy
 # according to the installer 'True' is not a boolean hence the lower filter
-- name: run foreman installer to {{ (foreman_proxy_dns|bool) | ternary("enable", "disable") }} dns
-  command: >-
+- name: Run foreman installer dns to {{ (foreman_proxy_dns | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
       --foreman-proxy-dns {{ foreman_proxy_dns | lower }}
       --foreman-proxy-dns-provider {{ foreman_proxy_dns_provider | default('nsupdate') }}
@@ -13,12 +13,12 @@
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
   notify:
-    - restart foreman-proxy
+    - Restart foreman-proxy
 
 # enable dhcp proxy
 # according to the installer 'True' is not a boolean hence the lower filter
-- name: run foreman installer to {{ (foreman_proxy_dhcp|bool) | ternary("enable", "disable") }} dhcp
-  command: >-
+- name: Run foreman installer dhcp to {{ (foreman_proxy_dhcp | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
       --foreman-proxy-dhcp {{ foreman_proxy_dhcp | lower }}
       --foreman-proxy-dhcp-gateway {{ foreman_proxy_dhcp_gateway }}
@@ -31,12 +31,12 @@
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
   notify:
-    - restart foreman-proxy
+    - Restart foreman-proxy
 
 # enable tftp proxy
 # according to the installer 'True' is not a boolean hence the lower filter
-- name: run foreman installer to {{ (foreman_proxy_tftp|bool) | ternary("enable", "disable") }} tftp
-  command: >-
+- name: Run foreman installer tftp to {{ (foreman_proxy_tftp | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
       --foreman-proxy-tftp {{ foreman_proxy_tftp | lower }}
       --foreman-proxy-tftp-servername {{ foreman_proxy_tftp_server_name }}
@@ -44,12 +44,12 @@
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
   notify:
-    - restart foreman-proxy
+    - Restart foreman-proxy
 
 # enable discovery plugin and discovery proxy
 # according to the installer 'True' is not a boolean hence the lower filter
-- name: run foreman installer to {{ (foreman_plugin_enable_discovery|bool) | ternary("enable", "disable") }} discovery
-  command: >-
+- name: Run foreman installer discovery to {{ (foreman_plugin_enable_discovery | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
       {{ (foreman_plugin_enable_discovery | ternary("--enable-foreman-plugin-discovery", "--no-enable-foreman-plugin-discovery")) }}
       {{ (foreman_plugin_enable_discovery | ternary("--enable-foreman-proxy-plugin-discovery", "--no-enable-foreman-proxy-plugin-discovery")) }}
@@ -58,4 +58,4 @@
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
   notify:
-    - restart foreman-proxy
+    - Restart foreman-proxy

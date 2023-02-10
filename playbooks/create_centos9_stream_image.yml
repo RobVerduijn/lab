@@ -1,10 +1,10 @@
 ---
-- name: Create rhel9 backing image
+- name: Create centos9stream backing image
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
-    os_image: RedHat9
+    os_image: CentOS9stream
 
   tasks:
     - name: Include set vm vars

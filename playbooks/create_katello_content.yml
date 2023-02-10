@@ -12,15 +12,6 @@
       ansible.builtin.include_role:
         name: RobVerduijn.lab.set_vm_vars
 
-    - name: Delete {{ vms | join(' ') }}
-      ansible.builtin.include_role:
-        name: RobVerduijn.lab.delete_guest
-      when: delete_vm | default(false) | bool
-
-    - name: Create {{ vms | join(' ') }}
-      ansible.builtin.include_role:
-        name: RobVerduijn.lab.create_guest
-
     - name: Ensure guests are started
       community.libvirt.virt:
         name: "{{ guest['key'] }}"
@@ -48,24 +39,12 @@
     - name: Gather facts
       ansible.builtin.setup:
 
-    - name: Update system
-      ansible.builtin.package:
-        name: '*'
-        state: latest
-      tags:
-        - skip_ansible_lint
-
     - name: Include roles
       ansible.builtin.include_role:
         name: "{{ role_name }}"
       loop:
-        - RobVerduijn.lab.add_swap_file
-        - RobVerduijn.lab.remove_cloud_init
-        - RobVerduijn.lab.conditional_reboot
-        - fedora.linux_system_roles.network
-        - fedora.linux_system_roles.timesync
         - RobVerduijn.lab.katello
       loop_control:
         loop_var: role_name
       vars:
-        swap_file_size_mb: 4096  # MiB
+        foreman_configure_infrastructure: false

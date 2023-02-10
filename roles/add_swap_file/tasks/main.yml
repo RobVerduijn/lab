@@ -1,11 +1,11 @@
 - name: Check if swap file exists
-  stat:
+  ansible.builtin.stat:
     path: "{{ swap_file_path }}"
   register: swap_file_check
   changed_when: false
 
 - name: Check if swap is on
-  shell: |
+  ansible.builtin.shell: |
     set -o pipefail
     swapon --show | grep {{ swap_file_path }}
   register: swap_enabled
@@ -13,7 +13,7 @@
   failed_when: false
 
 - name: Disable swap
-  command: swapoff {{ swap_file_path }}
+  ansible.builtin.command: swapoff {{ swap_file_path }}
   register: swap_disabled
   when:
     - swap_file_check.stat.exists
@@ -21,7 +21,7 @@
     - ( not swap_enable or ( swap_enable and swap_file_check.stat.size != ( swap_file_size_mb * 1024 * 1024 )))
 
 - name: Delete the swap file
-  file:
+  ansible.builtin.file:
     path: "{{ swap_file_path }}"
     state: absent
   when: not swap_enable
@@ -29,23 +29,22 @@
 - name: Configure swap
   when: swap_enable | bool
   block:
-    - block:
-        - name: create an empty file on btrfs
-          file:
-            path: "{{ swap_file_path }}"
-            owner: root
-            group: root
-            mode: 0600
-            attributes: C
-            state: touch
+    - name: Create an empty file on btrfs
+      ansible.builtin.file:
+        path: "{{ swap_file_path }}"
+        owner: root
+        group: root
+        mode: 0600
+        attributes: C
+        state: touch
+      when: (ansible_mounts | community.general.json_query("[?mount=='/'].fstype"))[0] == 'btrfs'
 
-        - name: ensure btrfs compression property is none
-          command: btrfs property set "{{ swap_file_path }}" compression ""
-
-      when: ( ansible_mounts | community.general.json_query("[?mount=='/'].fstype") )[0] == 'btrfs'
+    - name: Ensure btrfs compression property is none
+      ansible.builtin.command: btrfs property set "{{ swap_file_path }}" compression ""
+      when: (ansible_mounts | community.general.json_query("[?mount=='/'].fstype"))[0] == 'btrfs'
 
     - name: Create or change the size of swap file
-      command: dd if=/dev/zero of={{ swap_file_path }} count={{ swap_file_size_mb }} bs=1MiB
+      ansible.builtin.command: dd if=/dev/zero of={{ swap_file_path }} count={{ swap_file_size_mb }} bs=1MiB
       register: swap_file_created
       when: >
         not swap_file_check.stat.exists
@@ -53,20 +52,20 @@
         swap_file_check.stat.size != (swap_file_size_mb * 1024 * 1024)
 
     - name: Change swap file permissions
-      file:
+      ansible.builtin.file:
         path: "{{ swap_file_path }}"
         owner: root
         group: root
         mode: 0600
 
     - name: Check if swap is formatted
-      shell: file {{ swap_file_path }} | grep 'swap file'
+      ansible.builtin.shell: file {{ swap_file_path }} | grep 'swap file'
       register: swap_file_is_formatted
       changed_when: false
       failed_when: false
 
     - name: Format swap file if it's not formatted
-      command: mkswap {{ swap_file_path }}
+      ansible.builtin.command: mkswap {{ swap_file_path }}
       when: swap_file_is_formatted.rc > 0 or swap_file_created.changed
 
     - name: Add swap entry to fstab
@@ -79,7 +78,7 @@
         state: present
 
     - name: Turn on swap
-      command: swapon "{{ swap_file_path }}"
+      ansible.builtin.command: swapon "{{ swap_file_path }}"
       when:
         - swap_enabled.rc != 0
         - swap_disabled.changed

@@ -1,13 +1,23 @@
 ---
-- name: remove cloud init packages
-  package:
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts['packages'] is not defined
+
+- name: Remove cloud init packages
+  ansible.builtin.package:
     name:
       - cloud-init
       - cloud-utils-growfs
     state: absent
+  when: "['cloud-init','cloud-utils-growfs'] | difference(ansible_facts['packages'].keys()) | length < 2"
+  notify: Refresh package facts
 
-- name: clean up cloud-init
-  file:
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Clean up cloud-init
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:

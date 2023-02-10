@@ -1,10 +1,10 @@
 ---
-- name: set {{ dev }} pool if image already exists
-  set_fact:
+- name: Set pool if image already exists {{ dev }}
+  ansible.builtin.set_fact:
     guests: >-
       {{
         guests | combine(
-          { guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'backing_image_pool': loop_name['key'] }}}}}},
+          {guest: {'guest_def': {'devices': {'storage': {dev: {'backing_image_pool': loop_name['key']}}}}}},
           recursive=True
         )
       }}
@@ -13,12 +13,12 @@
     loop_var: loop_name
   when: guests[guest]['guest_def']['devices']['storage'][dev]['backing_image'] in loop_name['value']['volumes']
 
-- name: set {{ dev }} pool to default
-  set_fact:
+- name: Set pool to default {{ dev }}
+  ansible.builtin.set_fact:
     guests: >-
       {{
         guests | combine(
-          { guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'backing_image_pool': 'default' }}}}}},
+          {guest: {'guest_def': {'devices': {'storage': {dev: {'backing_image_pool': 'default'}}}}}},
           recursive=True
         )
       }}

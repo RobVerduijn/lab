@@ -13,11 +13,11 @@ guest_def:
       sda:
         # size must be set if the device is not an iso
         # set to size if device in G of T
-        size: 3G
+        size: 30G
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        # backing_image:
+        backing_image: backing_RHEL8_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:

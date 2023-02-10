@@ -1,6 +1,6 @@
 ---
-- name: check if foreman is already installed
-  stat:
+- name: Check if foreman is already installed
+  ansible.builtin.stat:
     path: /etc/foreman-installer/scenarios.d/.installed
   register: installed_file
 
@@ -8,30 +8,22 @@
 # This takes more time to complete but some plugins/features simply will
 # crash the installer if they are configured at the same time
 
-- name: install foreman
-  include_tasks: install.yml
+- name: Install foreman
+  ansible.builtin.include_tasks: install.yml
   when: not installed_file['stat']['exists']
 
-- name: configure infrastructure
-  include_tasks: infrastructure.yml
-  when:
-    - foreman_configure_infrastructure is defined
-    - foreman_configure_infrastructure | bool
+- name: Configure infrastructure
+  ansible.builtin.include_tasks: infrastructure.yml
+  when: foreman_configure_infrastructure | default(false) | bool
 
-- name: content
-  include_tasks: content.yml
-  when:
-    - foreman_configure_content is defined
-    - foreman_configure_content | bool
+- name: Content
+  ansible.builtin.include_tasks: content.yml
+  when: foreman_configure_content | default(false) | bool
 
-- name: configure hosts
-  include_tasks: hosts.yml
-  when:
-    - foreman_configure_hosts is defined
-    - foreman_configure_hosts | bool
+- name: Configure provisioning
+  ansible.builtin.include_tasks: provisioning.yml
+  when: foreman_configure_provisioning | default(false) | bool
 
-- name: configure
-  include_tasks: configure.yml
-  when:
-    - foreman_configure_configure is defined
-    - foreman_configure_configure | bool
+- name: Configure
+  ansible.builtin.include_tasks: hostgroup.yml
+  when: foreman_configure_hostgroup | default(false) | bool

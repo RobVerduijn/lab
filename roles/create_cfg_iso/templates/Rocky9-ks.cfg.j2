@@ -26,9 +26,9 @@ reboot
 {# selinux #}
 selinux --enforcing
 {# System services #}
-services --disabled="kdump,rhsmcertd" --enabled="sshd,NetworkManager,chronyd"
+services --disabled="kdump,rhsmcertd" --enabled="sshd,NetworkManager"
 {# System timezone #}
-timezone Europe/Amsterdam --isUtc
+timezone Europe/Amsterdam --utc
 {# Partition clearing information #}
 ignoredisk --only-use=sda
 clearpart --all --initlabel
@@ -36,24 +36,15 @@ zerombr
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
 {# to simplefy the image only a / partition #}
-autopart
-#part / --fstype="xfs" --ondisk=sda --size=3071
+autopart {#--type=lvm --nohome --noswap #}
+
+{#part / --fstype="xfs" --ondisk=sda --size=3071 #}
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}
-%packages --excludedocs --excludeWeakdeps
-@core
-kernel-core
-python3
-qemu-guest-agent
--dracut-config-rescue
--firewalld
--geolite2-city
--geolite2-country
--kernel
--plymount
--zram-generator-defaults
-kexec-tools
+%packages
+@^minimal-environment
+
 %end
 %addon com_redhat_kdump --enable --reserve-mb='auto'
 %end

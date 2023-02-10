@@ -36,8 +36,9 @@ zerombr
 {# Disk partitioning information #}
 {# to reduce image size no swap #}
 {# to simplefy the image only a / partition #}
-autopart --noswap --noboot --type=plain
-#part / --fstype="xfs" --ondisk=sda --size=3071
+autopart {#--type=lvm --nohome --noswap #}
+
+{#part / --fstype="xfs" --ondisk=sda --size=3071 #}
 {# System bootloader configuration#}
 bootloader --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0" --location=mbr --timeout=1 --boot-drive=sda
 {# package selection #}

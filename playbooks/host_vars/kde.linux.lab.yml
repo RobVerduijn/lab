@@ -16,7 +16,7 @@ guest_def:
   root_pubkey: "{{ root_pubkey }}"
   os_id: http://fedoraproject.org/fedora/35
   dist: Fedora
-  dist_major: 35
+  dist_major: 36
   dist_family: RedHat
   mem:
     unit: MiB
@@ -31,7 +31,7 @@ guest_def:
         # backing_image is optional
         # the name of the image to clone
         # when creating a backing image this will be its name
-        backing_image: backing_Fedora35_sda.qcow2
+        backing_image: backing_Fedora36_sda.qcow2
 
         # backing_image_pool will be determined if not set
         # backing_image_pool:

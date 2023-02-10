@@ -1,19 +1,19 @@
 ---
-- name: create tmp dir
-  file:
+- name: Create tmp dir
+  ansible.builtin.file:
     path: "{{ tmp_dir }}"
     state: directory
     mode: 0755
 
-- name: include {{ method }}
-  include_tasks: "{{ method }}.yml"
+- name: Include {{ method }}
+  ansible.builtin.include_tasks: "{{ method }}.yml"
 
-- name: delete tmp dir
-  file:
+- name: Delete tmp dir
+  ansible.builtin.file:
     path: "{{ tmp_dir }}"
     state: absent
 
-- name: refresh libvirt pool facts
+- name: Refresh libvirt pool facts
   community.libvirt.virt_pool:
     command: refresh
     name: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool'] }}"

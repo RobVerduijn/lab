@@ -1,24 +1,25 @@
 ---
-- block:
-    - name: determine {{ guest['key'] }} ip
-      command: virsh domifaddr {{ guest['key'] }}
+- name: Add guest to inventory with dynamic ip
+  when:
+    - guests[guest['key']]['network_connections'][0]['ip']['address'] is not defined
+  block:
+    - name: Determine ip {{ guest['key'] }}
+      ansible.builtin.command: virsh domifaddr {{ guest['key'] }}
       register: virsh_results
       until: "'ipv4' in virsh_results['stdout']"
       retries: 360
       changed_when: false
 
-    - name: add guest to inventory
-      add_host:
+    - name: Add guest to inventory
+      ansible.builtin.add_host:
         hostname: "{{ guest['key'] }}"
         groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default(['all']) }}"
-        ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$','\\1'))[0]  }}"
-  when:
-    - guests[guest['key']]['network_connections'][0]['ip']['address'] is not defined
+        ansible_host: "{{ (virsh_results['stdout'] | regex_findall('^.*ipv4\\s+(.*)/.*$', '\\1'))[0] }}"
 
-- name: add guest to inventory
-  add_host:
+- name: Add guest to inventory
+  ansible.builtin.add_host:
     hostname: "{{ guest['key'] }}"
     groups: "{{ guests[guest['key']]['guest_def']['host_groups'] | default(['all']) }}"
-    ansible_host: "{{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}"
+    ansible_host: "{{ guests[guest['key']]['network_connections'][0]['ip']['address'][0] | ansible.utils.ipaddr('address') }}"
   when:
     - guests[guest['key']]['network_connections'][0]['ip']['address'] is defined

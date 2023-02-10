@@ -1,0 +1,27 @@
+---
+- name: Create hostgroup
+  theforeman.foreman.hostgroup:
+    password: "{{ foreman_installer_option_admin_password }}"
+    server_url: https://{{ inventory_hostname }}
+    username: "{{ foreman_installer_option_admin }}"
+    validate_certs: false
+    name: "{{ product['name'] }} hg"
+    organization: "{{ foreman_installer_option_org }}"
+    lifecycle_environment: Library
+    content_view: "{{ product['name'] }} cv"
+    content_source: "{{ inventory_hostname }}"
+    compute_resource: "{{ groups['buildhost'][0] }}"
+    compute_profile: 2-Medium
+    domain: "{{ ipa_domain }}"
+    subnet: "{{ ipa_domain }}"
+    architecture: x86_64
+    operatingsystem: "{{ product['provisioning']['name'] }} {{ product['provisioning']['major'] }}"
+    media: "{{ product['provisioning']['media'] }}"
+    ptable: Kickstart default
+    pxe_loader: PXELinux BIOS
+    root_pass: "{{ product['provisioning']['password'] }}"
+    activation_keys: "{{ product['name'] }} ak"
+    state: present
+  loop: "{{ products }}"
+  loop_control:
+    loop_var: product

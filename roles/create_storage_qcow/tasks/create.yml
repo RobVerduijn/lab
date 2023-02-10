@@ -1,20 +1,20 @@
 ---
-- name: set readable vars
-  set_fact:
+- name: Set readable vars
+  ansible.builtin.set_fact:
     image: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['image'] }}"
     image_pool: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['pool'] }}"
     image_size: "{{ guests[guest['key']]['guest_def']['devices']['storage'][device['key']]['size'] }}"
 
-- name: set more readable vars
-  set_fact:
+- name: Set more readable vars
+  ansible.builtin.set_fact:
     image_pool_path: "{{ ansible_libvirt_pools[image_pool]['path'] }}"
 
-- name: create {{ image_pool_path }}/{{ image }} image
-  command: qemu-img create -f qcow2 -o preallocation=metadata {{ image_pool_path }}/{{ image }} {{ image_size }}
+- name: Create {{ image_pool_path }}/{{ image }} image
+  ansible.builtin.command: qemu-img create -f qcow2 -o preallocation=metadata {{ image_pool_path }}/{{ image }} {{ image_size }}
   tags:
     - skip_ansible_lint
 
-- name: refresh libvirt pool facts
+- name: Refresh libvirt pool facts
   community.libvirt.virt_pool:
     command: refresh
     name: "{{ image_pool }}"

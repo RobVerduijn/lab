@@ -8,22 +8,22 @@
       - ipa.linux.lab
       - ipaclient.linux.lab
   tasks:
-    - name: include set vm vars
-      include_role:
+    - name: Include set vm vars
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.set_vm_vars
 
-    - name: delete {{ vms | join(' ') }}
-      include_role:
+    - name: Delete {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.delete_guest
       when:
         - delete_vm is defined
         - delete_vm | bool
 
-    - name: create {{ vms | join(' ') }}
-      include_role:
+    - name: Create {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.create_guest
 
-    - name: ensure guests are started
+    - name: Ensure guests are started
       community.libvirt.virt:
         name: "{{ guest['key'] }}"
         state: running
@@ -31,42 +31,43 @@
       loop_control:
         loop_var: guest
 
-    - name: add guests to inventory
-      include_role:
+    - name: Add guests to inventory
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.add_guest_to_inventory
       loop: "{{ guests | dict2items }}"
       loop_control:
         loop_var: guest
 
-- name: configure ipaserver
+- name: Configure ipaserver
   hosts: ipaserver
   gather_facts: false
   remote_user: root
 
   tasks:
-    - name: wait for {{ inventory_hostname }} to fully start
-      wait_for_connection:
+    - name: Wait for host to fully start
+      ansible.builtin.wait_for_connection:
 
-    - name: gather facts
-      setup:
+    - name: Gather facts
+      ansible.builtin.setup:
 
     - name: Get service on port 53
-      shell: ss -tulpen
+      ansible.builtin.command: ss -tulpen
       register: results
+      when: true
 
     # ipa dns does not work yet
     # so configuring the resolv.conf to
     # forward to the libvirt network dns
-    - name: temporary overide dns config
-      copy:
+    - name: Temporary overide dns config
+      ansible.builtin.copy:
         dest: /etc/resolv.conf
         content: |
           nameserver 192.168.100.1
         mode: 0644
       when: "'named' not in results['stdout']"
 
-    - name: include roles
-      include_role:
+    - name: Include roles
+      ansible.builtin.include_role:
         name: "{{ my_role }}"
       loop:
         - RobVerduijn.lab.add_swap_file
@@ -79,7 +80,8 @@
       loop_control:
         loop_var: my_role
 
-    - freeipa.ansible_freeipa.ipauser:
+    - name: Add student user
+      freeipa.ansible_freeipa.ipauser:
         ipaadmin_password: "{{ ipaadmin_password }}"
         name: student
         first: Student
@@ -87,35 +89,35 @@
         password: "student"
         update_password: on_create
 
-    - name: ready
-      debug:
+    - name: Ready message
+      ansible.builtin.debug:
         msg: "{{ inventory_hostname }} is ready"
 
-- name: configure ipaserver
+- name: Configure ipaserver
   hosts: ipaclients
   gather_facts: false
   remote_user: root
 
   tasks:
-    - name: wait for {{ inventory_hostname }} to fully start
-      wait_for_connection:
-    
-    - name: gather facts
-      setup:
+    - name: Wait for host to fully start
+      ansible.builtin.wait_for_connection:
 
-    - name: ensure workstation desktop environment is present
-      package:
+    - name: Gather facts
+      ansible.builtin.setup:
+
+    - name: Ensure workstation desktop environment is present
+      ansible.builtin.dnf:
         name: '@workstation-product-environment'
         state: present
 
     - name: Change default target to graphical.target
-      file:
+      ansible.builtin.file:
         src: /usr/lib/systemd/system/graphical.target
         dest: /etc/systemd/system/default.target
         state: link
 
-    - name: include roles
-      include_role:
+    - name: Include roles
+      ansible.builtin.include_role:
         name: "{{ my_role }}"
       loop:
         - RobVerduijn.lab.add_swap_file
@@ -128,6 +130,6 @@
       loop_control:
         loop_var: my_role
 
-    - name: ready
-      debug:
+    - name: Ready message
+      ansible.builtin.debug:
         msg: "{{ inventory_hostname }} is ready"

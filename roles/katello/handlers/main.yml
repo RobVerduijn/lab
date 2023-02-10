@@ -1,5 +1,9 @@
 ---
-- name: restart foreman-proxy
-  systemd:
+- name: Restart foreman-proxy
+  ansible.builtin.systemd:
     name: foreman-proxy
     state: restarted
+
+- name: Refresh package facts
+  ansible.builtin.package_facts:
+    manager: auto

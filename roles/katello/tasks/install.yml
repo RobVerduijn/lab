@@ -1,17 +1,33 @@
 ---
-- name: install release packages
-  package:
-    name: '{{ katello_repos  }}'
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts['packages'] is not defined
+
+- name: Install release packages
+  ansible.builtin.package:
+    name: '{{ katello_repos }}'
     state: present
     disable_gpg_check: true
+  when: katello_repos | difference(ansible_facts['packages'].keys()) | length > 0
 
-- name: enable dnf modules
-  dnf:
-    name: '@{{ module.name }}:{{ module.version }}'
-    state: present
-  loop: "{{ dnf_modules }}"
-  loop_control:
-    loop_var: module
+- name: Enable modules
+  block:
+    - name: Enable modules with ansible dnf
+      ansible.builtin.dnf:
+        name: '@{{ module.name }}:{{ module.stream }}'
+        state: present
+      loop: "{{ dnf_modules }}"
+      loop_control:
+        loop_var: module
+  rescue:
+    - name: Enable modules with dnf module
+      ansible.builtin.command: dnf module enable -y {{ module.name }}:{{ module.stream }}
+      register: enable_dnf_module
+      changed_when: "'Nothing to do' not in enable_dnf_module['stdout']"
+      loop: "{{ dnf_modules }}"
+      loop_control:
+        loop_var: module
 
 - name: Enable CentOS repos
   community.general.ini_file:
@@ -24,92 +40,89 @@
   loop_control:
     loop_var: repo
 
-- name: ensure hostname resolves
-  lineinfile:
+- name: Ensure hostname resolves
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     regexp: |
-      ^{{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
+      ^{{ network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
     line: |
-      {{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
+      {{ network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('address') }} {{ inventory_hostname }} {{ inventory_hostname.split('.')[0] }}
     state: present
 
-- name: update packages
-  package:
+- name: Update packages
+  ansible.builtin.package:
     name: '*'
     state: latest
   tags:
     - skip_ansible_lint
 
-- name: conditional reboot
-  include_role:
+- name: Conditional reboot
+  ansible.builtin.include_role:
     name: RobVerduijn.lab.conditional_reboot
 
-- name: "Install {{ foreman_installer_package }}"
-  package:
+- name: Install {{ foreman_installer_package }}
+  ansible.builtin.package:
     name: "{{ foreman_installer_package }}"
     state: present
+  when: "foreman_installer_package not in anfalseible_facts['packages'].keys()"
 
-- name: set installer command
-  set_fact:
+- name: Set installer command
+  ansible.builtin.set_fact:
     install_cmd: "{{ foreman_install_cmd }}"
 
-- name: set foreman initial organization
-  set_fact:
+- name: Set foreman initial organization
+  ansible.builtin.set_fact:
     install_cmd: >-
         {{ install_cmd }}
         --foreman-initial-organization '{{ foreman_installer_option_org }}'
   when: foreman_installer_option_org is defined
 
-- name: set foreman initial location
-  set_fact:
+- name: Set foreman initial location
+  ansible.builtin.set_fact:
     install_cmd: >-
         {{ install_cmd }}
         --foreman-initial-location '{{ foreman_installer_option_loc }}'
   when: foreman_installer_option_loc is defined
 
-- name: set foreman initial admin account
-  set_fact:
+- name: Set foreman initial admin account
+  ansible.builtin.set_fact:
     install_cmd: >-
         {{ install_cmd }}
         --foreman-initial-admin-username '{{ foreman_installer_option_admin }}'
   when: foreman_installer_option_admin is defined
 
-- name: set foreman initial admin password
-  set_fact:
+- name: Set foreman initial admin password
+  ansible.builtin.set_fact:
     install_cmd: >-
         {{ install_cmd }}
         --foreman-initial-admin-password '{{ foreman_installer_option_admin_password }}'
   when: foreman_installer_option_admin_password is defined
 
 - name: Run installer
-  command: "{{ install_cmd }}"
+  ansible.builtin.command: "{{ install_cmd }}"
   register: foreman_installer_run
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
 
 # enable ssh remote execution plugin
-- name: run foreman installer to {{ (foreman_plugin_enable_remote_execution_ssh|bool) | ternary("enable", "disable") }} remote-execution-ssh
-  command: >-
+- name: Run foreman installer remote-execution-script to {{ (foreman_plugin_enable_remote_execution_script | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
-      {{ (foreman_plugin_enable_remote_execution_ssh|bool) |
-        ternary("--enable-foreman-proxy-plugin-remote-execution-ssh", "--no-enable-foreman-proxy-plugin-remote-execution-ssh") }}
+      {{ (foreman_plugin_enable_remote_execution_script | bool) |
+        ternary("--enable-foreman-proxy-plugin-remote-execution-script", "--no-enable-foreman-proxy-plugin-remote-execution-script") }}
   register: foreman_installer_run
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
-  when:
-    - foreman_plugin_enable_remote_execution_ssh is defined
-    - foreman_plugin_enable_remote_execution_ssh | bool
+  when: foreman_plugin_enable_remote_execution_script | default(false) | bool
 
 # enable ansible plugin
-# this task requires the remote execution ssh plugin
-- name: run foreman installer to {{ (foreman_plugin_enable_ansible|bool) | ternary("enable", "disable") }} ansible
-  command: >-
+# this task requires the remote execution script plugin
+- name: Run foreman installer ansible to {{ (foreman_plugin_enable_ansible | bool) | ternary("enable", "disable") }}
+  ansible.builtin.command: >-
       {{ foreman_install_cmd }}
-      {{ (foreman_plugin_enable_ansible|bool) | ternary("--enable-foreman-plugin-ansible", "--no-enable-foreman-plugin-ansible") }}
-      {{ (foreman_plugin_enable_ansible|bool) | ternary("--enable-foreman-proxy-plugin-ansible", "--no-enable-foreman-proxy-plugin-ansible") }}
+      {{ (foreman_plugin_enable_ansible | bool) | ternary("--enable-foreman-plugin-ansible", "--no-enable-foreman-plugin-ansible") }}
+      {{ (foreman_plugin_enable_ansible | bool) | ternary("--enable-foreman-proxy-plugin-ansible", "--no-enable-foreman-proxy-plugin-ansible") }}
   register: foreman_installer_run
   changed_when: foreman_installer_run['rc'] == 2
   failed_when: foreman_installer_run['rc'] not in [0, 2]
-  when:
-    - foreman_plugin_enable_ansible is defined
-    - foreman_plugin_enable_ansible | bool
+  when: foreman_plugin_enable_ansible | default(false) | bool

@@ -1,17 +1,21 @@
 ---
-- name: ensure dnf-utils is installed
-  package:
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts['packages'] is not defined
+
+- name: Ensure dnf-utils is installed
+  ansible.builtin.package:
     name: dnf-utils
     state: present
+  when: "'dnf-utils' not in ansible_facts['packages'].keys()"
 
-- name: check reboot needed
-  command: needs-restarting -r
+- name: Check reboot needed
+  ansible.builtin.command: needs-restarting -r
   register: needs_restarting
   changed_when: false
   failed_when: needs_restarting['rc'] > 1
 
-- name: reboot
-  reboot:
-  when:
-    - needs_restarting['rc'] is defined
-    - needs_restarting['rc'] == 1
+- name: Reboot
+  ansible.builtin.reboot:
+  when: needs_restarting['rc'] | default(0) == 1

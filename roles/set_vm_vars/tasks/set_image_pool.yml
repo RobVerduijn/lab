@@ -1,10 +1,10 @@
 ---
-- name: set {{ dev }} pool and method
-  set_fact:
+- name: Set pool and method {{ dev }}
+  ansible.builtin.set_fact:
     guests: >-
       {{
         guests | combine(
-          { guest: { 'guest_def': { 'devices': { 'storage': { dev: { 'pool': pool_name['key'], 'method': 'keep' }}}}}}, recursive=True
+          {guest: {'guest_def': {'devices': {'storage': {dev: {'pool': pool_name['key'], 'method': 'keep'}}}}}}, recursive=True
         )
       }}
   loop: "{{ ansible_libvirt_pools | dict2items }}"

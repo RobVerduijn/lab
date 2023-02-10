@@ -1,25 +1,25 @@
 ---
-- name: include host {{ ansible_distribution }}{{ ansible_distribution_major_version }} vars
-  include_vars: host_{{ ansible_distribution }}{{ ansible_distribution_major_version }}.yml
+- name: Include host vars {{ ansible_distribution + ansible_distribution_major_version }}
+  ansible.builtin.include_vars: host_{{ ansible_distribution + ansible_distribution_major_version }}.yml
 
-- name: include iso
-  include_vars: group_vars/iso.yml
+- name: Include iso
+  ansible.builtin.include_vars: group_vars/iso.yml
 
-- name: check if virt-sparsify is present
-  stat:
+- name: Check if virt-sparsify is present
+  ansible.builtin.stat:
     path: /usr/bin/virt-sparsify
   register: sparsify
 
-- name: ensure virt-sparsify is present
-  assert:
+- name: Ensure virt-sparsify is present
+  ansible.builtin.assert:
     that: sparsify['stat']['exists']
     fail_msg: I need the virt-sparsify binary, check if guestfs-tools rpm is installed
 
-- name: get libvirt pool names
+- name: Get libvirt pool names
   community.libvirt.virt_pool:
     command: facts
 
-- name: refresh libvirt pool facts
+- name: Refresh libvirt pool facts
   community.libvirt.virt_pool:
     command: refresh
     name: "{{ pool['key'] }}"
@@ -27,36 +27,36 @@
   loop_control:
     loop_var: pool
 
-- name: find current vms
+- name: Find current vms
   community.libvirt.virt:
     command: list_vms
   register: current_vms
   changed_when: false
 
-- name: define guests
-  include_tasks:
+- name: Define guests
+  ansible.builtin.include_tasks:
     file: define_guests.yml
   loop: "{{ vms }}"
   loop_control:
     loop_var: guest
   when: vms is defined
 
-- name: ensure vms is a hostvar
-  set_fact:
+- name: Ensure vms is a hostvar
+  ansible.builtin.set_fact:
     vms: "{{ vms }}"
   when: vms is defined
 
-- name: create guests definition
-  include_tasks:
+- name: Create guests definition
+  ansible.builtin.include_tasks:
     file: define_guests.yml
   vars:
     guest: "{{ os_image }}"
   when: os_image is defined
 
-- name: show {{ guests }}
-  debug:
+- name: Show {{ guests }}
+  ansible.builtin.debug:
     var: guests
 
-- name: show current vms
-  debug:
+- name: Show current vms
+  ansible.builtin.debug:
     var: current_vms['list_vms']
