@@ -1,4 +1,11 @@
 ---
+###
+#  Check the provisioning name syntax on the katello server as root with the command:
+#  hammer os list
+#  And the installation media with
+#  hammer medium list
+###
+
 products:
   - name: CentOSStream8
     gpg_key_name: RPM-GPG-KEY-CentOS-Stream-8
@@ -38,7 +45,7 @@ products:
       - name: CentOS Stream 8 BaseOS x86_64
         content_type: yum
         url: http://mirrorlist.centos.org/?release=8-stream&arch=x86_64&repo=BaseOS
-             
+
       - name: CentOS 8 Stream AppStream x86_64
         content_type: yum
         url: http://mirrorlist.centos.org/?release=8-stream&arch=x86_64&repo=AppStream
@@ -97,7 +104,7 @@ products:
 
     provisioning:
       name: CentOS_Stream
-      media: CentOS Stream
+      media: CentOS Stream 9 mirror
       family: Redhat
       major: 9
       password_hash: SHA256
@@ -149,7 +156,7 @@ products:
         url: https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=AppStream-8&country=NL
 
     provisioning:
-      name: Rocky_Linux
+      name: Rocky Linux
       description: Rocky Linux 8
       media: Rocky Linux
       family: Redhat
@@ -205,12 +212,11 @@ products:
         url: https://mirrors.rockylinux.org/mirrorlist?arch=x86_64&repo=AppStream-9&country=NL
 
     provisioning:
-      name: Rocky_Linux
+      name: Rocky Linux
       description: Rocky Linux 9
       media: Rocky Linux
       family: Redhat
       major: 9
-      minor: 1
       password_hash: SHA256
       architectures:
         - x86_64

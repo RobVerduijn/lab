@@ -15,9 +15,7 @@
     domain: "{{ ipa_domain }}"
     subnet: "{{ ipa_domain }}"
     architecture: x86_64
-    operatingsystem: >-
-      {{ product['provisioning']['name'] }} {{ product['provisioning']['major'] }}
-      {{ (product['provisioning']['minor'] | default('')) }}"
+    operatingsystem: "{{ provisioning_name }} {{ (minor | int > 0) | ternary(major + '.' + minor, major) }}"
     media: "{{ product['provisioning']['media'] }}"
     ptable: Kickstart default
     pxe_loader: PXELinux BIOS
@@ -27,3 +25,7 @@
   loop: "{{ products }}"
   loop_control:
     loop_var: product
+  vars:
+    provisioning_name: "{{ product['provisioning']['name'] }}"
+    major: "{{ product['provisioning']['major'] }}"
+    minor: "{{ product['provisioning']['minor'] | default(0) }}"
