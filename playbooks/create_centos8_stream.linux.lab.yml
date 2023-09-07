@@ -1,28 +1,28 @@
 ---
-- name: create centos8stream.linux.lab guest
+- name: Create centos8stream.linux.lab guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
     vms:
-      - centos_stream_8.linux.lab
+      - centos8_stream.linux.lab
   tasks:
-    - name: include set vm vars
-      include_role:
+    - name: Include set vm vars
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.set_vm_vars
 
-    - name: delete {{ vms | join(' ') }}
-      include_role:
+    - name: Delete {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.delete_guest
       when:
         - delete_vm is defined
         - delete_vm | bool
 
-    - name: create {{ vms | join(' ') }}
-      include_role:
+    - name: Create {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.create_guest
 
-    - name: ensure guests are started
+    - name: Ensure guests are started
       community.libvirt.virt:
         name: "{{ guest['key'] }}"
         state: running
@@ -30,27 +30,27 @@
       loop_control:
         loop_var: guest
 
-    - name: add guests to inventory
-      include_role:
+    - name: Add guests to inventory
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.add_guest_to_inventory
       loop: "{{ guests | dict2items }}"
       loop_control:
         loop_var: guest
 
-- name: configure rocky
-  hosts: centos8stream.linux.lab
+- name: Configure rocky
+  hosts: centos8_stream.linux.lab
   gather_facts: false
   remote_user: root
 
   tasks:
-    - name: wait for {{ inventory_hostname }} to fully start
-      wait_for_connection:
+    - name: Wait for system to fully start
+      ansible.builtin.wait_for_connection:
 
-    - name: gather facts
-      setup:
+    - name: Gather facts
+      ansible.builtin.setup:
 
-    - name: include roles
-      include_role:
+    - name: Include roles
+      ansible.builtin.include_role:
         name: "{{ role }}"
       loop:
         - RobVerduijn.lab.add_swap_file
@@ -62,6 +62,6 @@
       loop_control:
         loop_var: role
 
-    - name: ready
-      debug:
+    - name: Ready
+      ansible.builtin.debug:
         msg: "{{ inventory_hostname }} is ready"

@@ -9,33 +9,24 @@ foreman_installer_no_colors: false
 foreman_installer_option_org: Zolder Cloud Lab
 foreman_installer_option_loc: zolder
 foreman_installer_option_admin: admin
-foreman_installer_option_admin_password: katello42  # encrypt this in production
+foreman_installer_option_admin_password: katello47  # encrypt this in production
 
 # foreman default plugins
-# katello won't function properly without remote ssh execution and ansible
+# katello won't function properly without remote script execution and ansible
 # and are also default enabled in satellite so they are kinda mandatory
 # disable these at your own peril
-foreman_plugin_enable_remote_execution_ssh: true
+foreman_plugin_enable_remote_execution_script: true
 foreman_plugin_enable_ansible: true  # requires the remote-exection-ssh plugin
 
 # the configurations below are set to false so you can
 # use the environment to practice
 # if you don't care for such set the desired options to true
-foreman_configure_infrastructure: false  # this will setup infrastructure
-foreman_configure_proxies: false  # this will enable all proxies dns, dhcp, tftp, discovery, requires foreman_configure_infrastructure to be true
-foreman_configure_content: false  # this will setup content: products, repositories, lifecycles, content views, activation keys
-foreman_configure_hosts: false  # setup operating systems
-foreman_configure_configure: false  # setup host groups
-
-# optional plugin to enable katello integration with libvirt on the host
-# rarely used in production but very usefull for this lab environment
-# set to false to disable it
-# requires foreman_configure_infrastructure to be true
-foreman_plugin_enable_compute_libvirt: true  # setup compute resource
+foreman_configure_infrastructure: true  # this will setup infrastructure
+foreman_configure_proxies: true  # this will enable all proxies dns, dhcp, tftp, discovery, requires foreman_configure_infrastructure to be true
 
 # forman dns proxy, requires foreman_configure_infrastructure to be true
 foreman_proxy_dns: true
-foreman_proxy_dns_reverse: "{{ (network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('revdns')).split('.')[1:-1] | join('.') }}"
+foreman_proxy_dns_reverse: "{{ (network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('revdns')).split('.')[1:-1] | join('.') }}"
 foreman_proxy_dns_forwarders: "{{ network_connections[0]['ip']['gateway4'] }}"
 
 # foreman configure domain
@@ -45,31 +36,48 @@ foreman_configure_domain: true  # requires dns_proxy and foreman_configure_infra
 foreman_proxy_dhcp: true
 foreman_proxy_dhcp_gateway: "{{ network_connections[0]['ip']['gateway4'] }}"
 foreman_proxy_dhcp_nameservers: "{{ network_connections[0]['ip']['dns'] | join(',') }}"
-foreman_proxy_dhcp_netmask: "{{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('netmask') }}"
-foreman_proxy_dhcp_network: "{{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('network') }}"
-foreman_proxy_dhcp_range_start: "{{ ( network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.150"
-foreman_proxy_dhcp_range_stop: "{{ ( network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
+foreman_proxy_dhcp_netmask: "{{ network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('netmask') }}"
+foreman_proxy_dhcp_network: "{{ network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('network') }}"
+foreman_proxy_dhcp_range_start: "{{ ( network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('address')).split('.')[:-1] | join('.') }}.150"
+foreman_proxy_dhcp_range_stop: "{{ ( network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('address')).split('.')[:-1] | join('.') }}.254"
 foreman_proxy_dhcp_range: "{{ foreman_proxy_dhcp_range_start }} {{ foreman_proxy_dhcp_range_stop }}"
 foreman_proxy_dhcp_search_domains: "{{ ipa_domain }}"
 
 # katello use local tftp, requires dhcp proxy and foreman_configure_infrastructure to be true
 foreman_proxy_tftp: true
-foreman_proxy_tftp_server_name: "{{ network_connections[0]['ip']['address'][0] | ansible.netcommon.ipaddr('address') }}"
+foreman_proxy_tftp_server_name: "{{ network_connections[0]['ip']['address'][0] | ansible.utils.ipaddr('address') }}"
 
 # foreman configure subnet, requires all of the above
 foreman_configure_subnet: true
+
+# foreman content
+foreman_configure_content: true  # this will setup content: products, repositories, lifecycles, content views, activation keys
+foreman_configure_provisioning: true  # setup provisioning
+foreman_configure_hostgroup: true  # setup host groups
 
 # configure product, requires foreman_configure_subnet to be true
 foreman_configure_product: true
 
 # katello use discovery plugin, requies dhcp proxy and foreman_configure_infrastructure to be true
 foreman_plugin_enable_discovery: true
+
+# optional plugin to enable katello integration with libvirt on the host
+# rarely used in production but very usefull for this lab environment
+# set to false to disable it
+# requires foreman_configure_infrastructure to be true
+foreman_plugin_enable_compute_libvirt: true  # setup compute resource
+
+#
+# Enable discovery
+#
 # I couldn't find a way to write the following into an ansible play
-# from the docs: https://theforeman.org/plugins/foreman_discovery/15.0/index.html
+# from the docs: https://theforeman.org/plugins/foreman_discovery/18.0/index.html
+#
+# - set the 'Default PXE global template value' to 'discovery'
 # find the 'Default PXE global template entry' option ( or use the search in settings menu)
 #  Administer->settings->Provisioning
-# set the 'Default PXE global template entry' to 'discovery'
-# then re-build the pxe default config
+#  change the 'Default PXE global template' value to 'discovery'
+# - re-build the pxe default config
 # find the 'Build PXE Default' button and click it.
 #  Hosts->Provisioning Templates->Build PXE Default
 
@@ -79,37 +87,49 @@ lifecycles:
   - name: Productie
     prior: Test
 
-content_views:
-  - name: CentOS 8 CV
-    repos:
-      - name: CentOS 8 BaseOS x86_64
-        product: CentOS8
-      - name: CentOS 8 AppStream x86_64
-        product: CentOS8
-
-theforeman_release: '3.0'
-katello_release: '4.2'
+theforeman_release: '3.5'
+katello_release: '4.7'
 
 # you probably don't need to edit the vars below
 
 katello_repos:
   - https://yum.theforeman.org/releases/{{ theforeman_release }}/el{{ ansible_distribution_major_version }}/x86_64/foreman-release.rpm
   - https://yum.theforeman.org/katello/{{ katello_release }}/katello/el{{ ansible_distribution_major_version }}/x86_64/katello-repos-latest.rpm
-  - centos-release-ansible-29
-  - https://yum.puppet.com/puppet6-release-el-{{ ansible_distribution_major_version }}.noarch.rpm
+  # - centos-release-ansible-29
+  - https://yum.puppet.com/puppet7-release-el-{{ ansible_distribution_major_version }}.noarch.rpm
 
 dnf_modules:
   - name: ruby
-    version: 2.7
+    stream: 2.7
     profiles: ''
 
   - name: postgresql
-    version: 12
+    stream: 12
+    profiles: ''
+
+  - name: pki-deps
+    stream: 10.6
+    profiles: ''
+
+  - name: pki-core
+    stream: 10.6
+    profiles: ''
+
+  - name: foreman
+    stream: el8
+    profiles: ''
+
+  - name: pulpcore
+    stream: el8
+    profiles: ''
+
+  - name: katello
+    stream: el8
     profiles: ''
 
 centos_repos:
   - name: powertools
-    repofile: CentOS-Linux-PowerTools.repo
+    repofile: CentOS-Stream-PowerTools.repo
 
 foreman_install_cmd: >-
   env LANG=en_US.UTF-8 LC_ALL=en_US.UTF8

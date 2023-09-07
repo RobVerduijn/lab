@@ -25,9 +25,9 @@ guest_def:
   dist_major: 8
   dist_family: RedHat
   mem:
-    unit: MiB
-    size: 8192  # docs.theforman.org recommends 20G as the minimum, but for testing 8G will do.
-  vcpu: 2  # docs.theforman.org recommends 4 cores at 2Ghz as the minimum, but for testing 2 cores will do.
+    unit: GiB
+    size: 20
+  vcpu: 4
   devices:
     storage:
       sda:

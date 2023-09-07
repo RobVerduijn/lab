@@ -1,10 +1,10 @@
 ---
-- name: create centos8stream backing image
+- name: create rhel7 backing image
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
-    os_image: CentOS8stream
+    os_image: RedHat7
 
   tasks:
     - name: include set vm vars

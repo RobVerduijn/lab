@@ -4,24 +4,34 @@
   become: false
 
   tasks:
-    - name: check if there is only one buildhost
-      assert:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+      when: ansible_facts['packages'] is not defined
+
+    - name: Check if there is only one buildhost
+      ansible.builtin.assert:
         that:
           - groups['buildhost'] | length == 1
         fail_msg: There should only be one host in the buildhost group
         success_msg: The buildhost is {{ inventory_hostname }}
 
-    - name: install required packages
-      package:
+    - name: Install required packages
+      ansible.builtin.dnf:
         name:
           - genisoimage
+          - python3-jmespath
+          - python3-pip
           - python3-virtualenv
           - virtio-win
         state: present
       remote_user: root
+      when: >-
+        ['genisoimage', 'python3-jmespath', 'python3-pip', 'python3-virtualenv', 'virtio-win']
+        | difference(ansible_facts['packages'].keys()) | length > 0
 
-    - name: ensure symlink to iso is present in default images folder
-      file:
+    - name: Ensure symlink to iso is present in default images folder
+      ansible.builtin.file:
         src: /usr/share/virtio-win/virtio-win.iso
         dest: /var/lib/libvirt/images/virtio-win.iso
         state: link
@@ -31,22 +41,22 @@
         mode: 0644
       remote_user: root
 
-    - name: debug vars
-      debug:
+    - name: Show playbook dir
+      ansible.builtin.debug:
         var: playbook_dir
 
-    - name: debug vars
-      debug:
+    - name: Show ansible version
+      ansible.builtin.debug:
         var: ansible_version
 
-    - name: create venv dir
-      file:
+    - name: Create venv dir
+      ansible.builtin.file:
         path: "{{ playbook_dir }}/venv"
         state: directory
         mode: 0700
 
-    - name: create requirements.txt
-      copy:
+    - name: Create requirements.txt
+      ansible.builtin.copy:
         dest: "{{ playbook_dir }}/venv/requirements.txt"
         content: |
           ansible-core
@@ -62,16 +72,15 @@
         mode: 0600
 
     - name: Initiate virtualenv
-      pip:
+      ansible.builtin.pip:
         virtualenv: "{{ playbook_dir }}/venv"
         requirements: "{{ playbook_dir }}/venv/requirements.txt"
         extra_args: --upgrade
 
-    - name: install collections and roles
-      shell: |
-        ansible-galaxy collection install -f --force-with-deps git+https://github.com/RobVerduijn/lab.git
-      when: true
+    - name: Install lab collection
+      ansible.builtin.shell: |
+        ansible-galaxy collection install -U -p collections git+https://github.com/RobVerduijn/lab.git
 
-    - name: add networks
-      include_role:
+    - name: Add networks
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.create_network

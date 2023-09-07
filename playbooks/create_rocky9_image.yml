@@ -1,10 +1,10 @@
 ---
-- name: Create rhel9 backing image
+- name: Create rocky9 backing image
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
-    os_image: RedHat9
+    os_image: Rocky9
 
   tasks:
     - name: Include set vm vars
