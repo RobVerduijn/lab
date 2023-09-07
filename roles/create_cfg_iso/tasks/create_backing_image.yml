@@ -1,34 +1,35 @@
 ---
-
-- name: set path and image
-  set_fact:
+- name: Set path and image
+  ansible.builtin.set_fact:
     path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool']]['path'] }}"
     image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['image'] }}"
 
-- block:
-    - name: create ks file
-      template:
+- name: Create RedHat family config iso
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'RedHat'
+  block:
+    - name: Create ks file
+      ansible.builtin.template:
         src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}-ks.cfg.j2"
         dest: "{{ tmp_dir }}/ks.cfg"
         mode: 0644
 
-    - name: generate iso
-      command: >-
+    - name: Generate iso
+      ansible.builtin.command: >-
         genisoimage -volid OEMDRV -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/ks.cfg
       args:
         creates: "{{ path }}/{{ image }}"
 
-  when: guests[guest['key']]['guest_def']['dist_family'] == 'RedHat'
-
-- block:
-    - name: create xml file
-      template:
+- name: Genertate config iso for windows family
+  when: guests[guest['key']]['guest_def']['dist_family'] == 'Windows'
+  block:
+    - name: Create xml file
+      ansible.builtin.template:
         src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}_autounattend.xml.j2"
         dest: "{{ tmp_dir }}/Autounattend.xml"
         mode: 0644
 
-    - name: add files
-      copy:
+    - name: Add files
+      ansible.builtin.copy:
         src: "{{ file }}"
         dest: "{{ tmp_dir }}/{{ file }}"
         mode: 0644
@@ -37,10 +38,8 @@
       loop_control:
         loop_var: file
 
-    - name: generate iso
-      command: >-
+    - name: Generate iso
+      ansible.builtin.command: >-
         genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/
       args:
         creates: "{{ path }}/{{ image }}"
-
-  when: guests[guest['key']]['guest_def']['dist_family'] == 'Windows'

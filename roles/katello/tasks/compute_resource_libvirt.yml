@@ -49,7 +49,7 @@
                 return polkit.Result.YES;
             }
             });
-        mode: 0644
+        mode: '0644'
 
     - name: Get host pub key {{ groups['buildhost'][0] }}
       ansible.builtin.slurp:
@@ -75,7 +75,7 @@
     path: "{{ getent_passwd['foreman'][4] }}/.ssh/known_hosts"
     owner: foreman
     group: foreman
-    mode: 0644
+    mode: '0644'
     state: file
 
 - name: Create livirt compute resource

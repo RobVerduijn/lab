@@ -210,6 +210,7 @@ products:
       media: Rocky Linux
       family: Redhat
       major: 9
+      minor: 1
       password_hash: SHA256
       architectures:
         - x86_64

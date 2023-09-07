@@ -1,0 +1,4 @@
+---
+- name: Refresh package facts
+  ansible.builtin.package_facts:
+    manager: auto

@@ -1,23 +1,23 @@
 ---
-- name: debug shit {{ guest['key'] }}
-  debug:
+- name: Debug {{ guest['key'] }}
+  ansible.builtin.debug:
     var: guests[guest['key']]['guest_def']
 
-- name: create cloud init files
-  template:
+- name: Create cloud init files
+  ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "{{ tmp_dir }}/{{ item }}"
-    mode: 0644
+    mode: "0644"
   loop:
     - meta-data
     - user-data
 
-- name: set path and image
-  set_fact:
+- name: Set path and image
+  ansible.builtin.set_fact:
     path: "{{ ansible_libvirt_pools[guests[guest['key']]['guest_def']['devices']['storage']['sdg']['pool']]['path'] }}"
     image: "{{ guests[guest['key']]['guest_def']['devices']['storage']['sdg']['image'] }}"
 
-- name: generate iso
-  command: genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/user-data {{ tmp_dir }}/meta-data
+- name: Generate iso
+  ansible.builtin.command: genisoimage -volid cidata -joliet -rock -output {{ path }}/{{ image }} {{ tmp_dir }}/user-data {{ tmp_dir }}/meta-data
   args:
     creates: "{{ path }}/{{ image }}"

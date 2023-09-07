@@ -1,6 +1,6 @@
 ---
 guest_def:
-  os_id: http://fedoraproject.org/fedora/34
+  os_id: http://fedoraproject.org/fedora/37
   dist: Fedora
   dist_major: 37
   dist_family: RedHat

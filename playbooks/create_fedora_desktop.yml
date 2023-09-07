@@ -1,29 +1,40 @@
 ---
-- name: create kde.linux.lab guest
+- name: Create guest
   hosts: buildhost
   gather_facts: true
   remote_user: root
   vars:
-    vms:
-      - kde.linux.lab
 
   tasks:
-    - name: include set vm vars
-      include_role:
+    - name: Set desktop flavor
+      ansible.builtin.set_fact:
+        desktop: "{{ desktop | default('kde') }}"
+
+    - name: Set linux.lab name to {{ desktop }}
+      ansible.builtin.set_fact:
+        vms: "{{ [desktop + '.linux.lab'] }}"
+
+    - name: Set desktop var for {{ desktop + '.linux.lab' }}
+      ansible.builtin.add_host:
+        name: "{{ desktop + '.linux.lab' }}"
+        desktop: "{{ desktop }}"
+
+    - name: Include set vm vars
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.set_vm_vars
 
-    - name: delete {{ vms | join(' ') }}
-      include_role:
+    - name: Delete {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.delete_guest
       when:
         - delete_vm is defined
         - delete_vm | bool
 
-    - name: create {{ vms | join(' ') }}
-      include_role:
+    - name: Create {{ vms | join(' ') }}
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.create_guest
 
-    - name: ensure guests are started
+    - name: Ensure guests are started
       community.libvirt.virt:
         name: "{{ guest['key'] }}"
         state: running
@@ -31,24 +42,24 @@
       loop_control:
         loop_var: guest
 
-    - name: add guests to inventory
-      include_role:
+    - name: Add guests to inventory
+      ansible.builtin.include_role:
         name: RobVerduijn.lab.add_guest_to_inventory
       loop: "{{ guests | dict2items }}"
       loop_control:
         loop_var: guest
 
-- name: configure guests
+- name: Configure guests
   hosts: "{{ hostvars[groups['buildhost'][0]]['vms'] | default('fail') }}"
   gather_facts: false
   remote_user: root
 
   tasks:
-    - name: wait for {{ inventory_hostname }} to fully start
-      wait_for_connection:
-    
-    - name: gather facts
-      setup:
+    - name: Wait for to fully start {{ inventory_hostname }}
+      ansible.builtin.wait_for_connection:
+
+    - name: Gather facts
+      ansible.builtin.setup:
 
     # an 'environment group' is not the same as a group
     # it contains quite a lot more packages
@@ -65,13 +76,13 @@
     #   workstation-product-environment
     #   xfce-desktop-environment
 
-    - name: ensure workstation desktop environment is present
-      package:
-        name: '@kde-desktop-environment'
+    - name: Ensure workstation desktop environment is present
+      ansible.builtin.dnf:
+        name: '@{{ desktop }}-desktop-environment'
         state: present
 
     - name: Change default target to graphical.target
-      file:
+      ansible.builtin.file:
         src: /usr/lib/systemd/system/graphical.target
         dest: /etc/systemd/system/default.target
         state: link
@@ -81,10 +92,10 @@
         name: "{{ user }}"
         groups: wheel
         password: "{{ user_password | password_hash('sha512') }}"
-        append: yes
+        append: true
 
-    - name: include roles
-      include_role:
+    - name: Include roles
+      ansible.builtin.include_role:
         name: "{{ my_role }}"
       loop:
         - RobVerduijn.lab.add_swap_file
@@ -96,6 +107,6 @@
       loop_control:
         loop_var: my_role
 
-    - name: ready
-      debug:
+    - name: Ready
+      ansible.builtin.debug:
         msg: "{{ inventory_hostname }} is ready"
