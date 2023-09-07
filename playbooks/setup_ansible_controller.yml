@@ -77,10 +77,9 @@
         requirements: "{{ playbook_dir }}/venv/requirements.txt"
         extra_args: --upgrade
 
-    - name: Install collections and roles
+    - name: Install lab collection
       ansible.builtin.shell: |
-        ansible-galaxy collection install -f --force-with-deps git+https://github.com/RobVerduijn/lab.git
-      when: false
+        ansible-galaxy collection install -U -p collections git+https://github.com/RobVerduijn/lab.git
 
     - name: Add networks
       ansible.builtin.include_role:
