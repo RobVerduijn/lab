@@ -11,7 +11,7 @@
       ansible.builtin.template:
         src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}-ks.cfg.j2"
         dest: "{{ tmp_dir }}/ks.cfg"
-        mode: 0644
+        mode: "0644"
 
     - name: Generate iso
       ansible.builtin.command: >-
@@ -26,13 +26,13 @@
       ansible.builtin.template:
         src: "{{ guests[guest['key']]['guest_def']['dist'] }}{{ guests[guest['key']]['guest_def']['dist_major'] }}_autounattend.xml.j2"
         dest: "{{ tmp_dir }}/Autounattend.xml"
-        mode: 0644
+        mode: "0644"
 
     - name: Add files
       ansible.builtin.copy:
         src: "{{ file }}"
         dest: "{{ tmp_dir }}/{{ file }}"
-        mode: 0644
+        mode: "0644"
       loop:
         - ConfigureRemotingForAnsible.ps1
       loop_control:

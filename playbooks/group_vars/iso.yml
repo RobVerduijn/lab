@@ -29,6 +29,10 @@ iso:
     name: Fedora-Server-dvd-x86_64-38-1.6.iso
     url: https://fedora.mirror.wearetriple.com/linux/releases/38/Server/x86_64/iso/Fedora-Server-dvd-x86_64-38-1.6.iso
     pool: default
+  Fedora39:
+    name: Fedora-Server-dvd-x86_64-39-1.5.iso
+    url: https://fedora.mirror.wearetriple.com/linux/releases/39/Server/x86_64/iso/Fedora-Server-dvd-x86_64-39-1.5.iso
+    pool: default
   Rocky8:
     name: Rocky-8.7-x86_64-dvd1.iso
     url: https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.7-x86_64-dvd1.iso
